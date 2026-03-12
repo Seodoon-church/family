@@ -9,7 +9,7 @@ import { MemberProfile } from "@/components/member/member-profile";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+
 import type { FamilyMember } from "@/types/family";
 
 export function MemberDetailClient() {
@@ -25,7 +25,7 @@ export function MemberDetailClient() {
     const fetchMember = async () => {
       const db = getFirebaseDb();
       const memberDoc = await getDoc(
-        doc(db, "families", userProfile.familyId, "members", id)
+        doc(db, "families", userProfile.familyId!, "members", id)
       );
       if (memberDoc.exists()) {
         setMember({ id: memberDoc.id, ...memberDoc.data() } as FamilyMember);
@@ -48,22 +48,22 @@ export function MemberDetailClient() {
     return (
       <div className="max-w-4xl mx-auto text-center py-12">
         <p className="text-muted">구성원을 찾을 수 없습니다.</p>
-        <Link href="/members">
+        <a href="/members">
           <Button variant="outline" className="mt-4">
             <ArrowLeft className="w-4 h-4 mr-1" />
             목록으로
           </Button>
-        </Link>
+        </a>
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-4">
-      <Link href="/members" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground">
+      <a href="/members" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground">
         <ArrowLeft className="w-4 h-4" />
         구성원 목록
-      </Link>
+      </a>
       <MemberProfile member={member} />
     </div>
   );

@@ -9,7 +9,7 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getFirebaseDb } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
 
 export interface FamilyEvent {
@@ -36,7 +36,7 @@ export function useEvents(familyId: string | undefined) {
     }
 
     const q = query(
-      collection(db, "families", familyId, "events"),
+      collection(getFirebaseDb(), "families", familyId, "events"),
       orderBy("eventDate", "desc")
     );
 
@@ -47,6 +47,9 @@ export function useEvents(familyId: string | undefined) {
       })) as FamilyEvent[];
       setEvents(data);
       setLoading(false);
+    }, (error) => {
+      console.error("Failed to load events:", error);
+      setLoading(false);
     });
 
     return unsubscribe;
@@ -54,7 +57,7 @@ export function useEvents(familyId: string | undefined) {
 
   const addEvent = async (event: Omit<FamilyEvent, "id" | "createdAt">) => {
     if (!familyId) return;
-    await addDoc(collection(db, "families", familyId, "events"), {
+    await addDoc(collection(getFirebaseDb(), "families", familyId, "events"), {
       ...event,
       createdAt: serverTimestamp(),
     });

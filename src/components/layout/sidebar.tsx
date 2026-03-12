@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -12,16 +12,36 @@ import {
   Clock,
   Settings,
   X,
+  PenSquare,
 } from "lucide-react";
 
-const navItems = [
-  { href: "/dashboard", label: "대시보드", icon: LayoutDashboard },
-  { href: "/tree", label: "가계도", icon: GitBranchPlus },
-  { href: "/members", label: "가족 구성원", icon: Users },
-  { href: "/stories", label: "가족 이야기", icon: BookOpen },
-  { href: "/gallery", label: "미디어 갤러리", icon: Image },
-  { href: "/timeline", label: "가족 연표", icon: Clock },
-  { href: "/settings", label: "설정", icon: Settings },
+const navGroups = [
+  {
+    items: [
+      { href: "/dashboard", label: "대시보드", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "가족",
+    items: [
+      { href: "/tree", label: "가계도", icon: GitBranchPlus },
+      { href: "/members", label: "구성원 관리", icon: Users },
+    ],
+  },
+  {
+    label: "기록",
+    items: [
+      { href: "/stories", label: "가족 이야기", icon: BookOpen },
+      { href: "/gallery", label: "미디어 갤러리", icon: Image },
+      { href: "/timeline", label: "가족 연표", icon: Clock },
+    ],
+  },
+  {
+    label: "설정",
+    items: [
+      { href: "/settings", label: "설정", icon: Settings },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -29,69 +49,96 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+function SidebarNav({ pathname, onClose }: { pathname: string; onClose: () => void }) {
+  return (
+    <nav className="flex-1 overflow-y-auto px-3 pb-3">
+      {navGroups.map((group, gi) => (
+        <div key={gi} className={gi > 0 ? "mt-5" : ""}>
+          {group.label && (
+            <p className="px-3 mb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+              {group.label}
+            </p>
+          )}
+          <div className="space-y-0.5">
+            {group.items.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              const Icon = item.icon;
+
+              return (
+                <a
+                  key={item.href + item.label}
+                  href={item.href}
+                  onClick={() => onClose()}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 cursor-pointer",
+                    isActive
+                      ? "bg-primary text-white"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  )}
+                >
+                  <Icon className={cn("w-[18px] h-[18px]", isActive ? "text-white" : "text-gray-400")} />
+                  {item.label}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <>
+      {/* Desktop sidebar - always visible, normal flow */}
+      <aside className="hidden md:flex flex-col w-60 shrink-0 h-full bg-white border-r border-gray-200">
+        <div className="p-3">
+          <a
+            href="/stories/new"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors shadow-sm"
+          >
+            <PenSquare className="w-4 h-4" />
+            이야기 쓰기
+          </a>
+        </div>
+        <SidebarNav pathname={pathname} onClose={onClose} />
+      </aside>
+
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Mobile sidebar - fixed overlay */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 h-full w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out",
-          "md:relative md:translate-x-0 md:z-0",
+          "fixed top-0 left-0 z-50 h-full w-60 bg-white border-r border-gray-200 flex flex-col md:hidden",
+          "transition-transform duration-200 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border md:hidden">
-          <span className="font-brush text-lg text-primary-dark">우리家 이야기</span>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-white font-bold text-xs">家</span>
+            </div>
+            <span className="font-semibold text-gray-900">우리家 이야기</span>
+          </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-primary-light"
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
             aria-label="메뉴 닫기"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
-        <nav className="p-3 space-y-1">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            const Icon = item.icon;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-primary text-white"
-                    : "text-foreground hover:bg-primary-light"
-                )}
-              >
-                <Icon className="w-5 h-5" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="absolute bottom-4 left-0 right-0 px-4">
-          <div className="p-3 rounded-lg bg-primary-light/50 border border-border">
-            <p className="text-xs text-muted text-center font-heading">
-              가문의 뿌리를 기록하다
-            </p>
-          </div>
-        </div>
+        <SidebarNav pathname={pathname} onClose={onClose} />
       </aside>
     </>
   );

@@ -6,17 +6,40 @@ import type { TreePerson } from "@/types/tree";
 
 export function useTreeData(
   members: FamilyMember[],
-  relationships: Relationship[]
+  relationships: Relationship[],
+  familySurname?: string,
+  highlightId?: string
 ): TreePerson | null {
   return useMemo(() => {
     if (members.length === 0) return null;
-    return buildTreeData(members, relationships);
-  }, [members, relationships]);
+    const tree = buildTreeData(members, relationships, familySurname);
+    if (tree && highlightId) {
+      markHighlighted(tree, highlightId);
+    }
+    return tree;
+  }, [members, relationships, familySurname, highlightId]);
+}
+
+/** 트리에서 특정 ID의 노드(및 그 배우자)를 하이라이트 표시 */
+function markHighlighted(node: TreePerson, targetId: string): boolean {
+  if (node.id === targetId) {
+    node.isHighlighted = true;
+    return true;
+  }
+  if (node.spouse?.id === targetId) {
+    node.spouse.isHighlighted = true;
+    return true;
+  }
+  for (const child of node.children) {
+    if (markHighlighted(child, targetId)) return true;
+  }
+  return false;
 }
 
 function buildTreeData(
   members: FamilyMember[],
-  relationships: Relationship[]
+  relationships: Relationship[],
+  familySurname?: string
 ): TreePerson | null {
   const parentChildRels = relationships.filter((r) => r.type === "PARENT_CHILD");
   const spouseRels = relationships.filter((r) => r.type === "SPOUSE");
@@ -37,16 +60,17 @@ function buildTreeData(
     return memberToTreePerson(sorted[0], members, parentChildRels, spouseRels);
   }
 
-  return buildNode(rootId, members, parentChildRels, spouseRels);
+  return buildNode(rootId, members, parentChildRels, spouseRels, familySurname);
 }
 
 function buildNode(
   personId: string,
   members: FamilyMember[],
   parentChildRels: Relationship[],
-  spouseRels: Relationship[]
+  spouseRels: Relationship[],
+  familySurname?: string
 ): TreePerson | null {
-  const person = members.find((m) => m.id === personId);
+  let person = members.find((m) => m.id === personId);
   if (!person) return null;
 
   // Find spouse
@@ -59,7 +83,19 @@ function buildNode(
       ? spouseRel.toId
       : spouseRel.fromId
     : undefined;
-  const spouse = spouseId ? members.find((m) => m.id === spouseId) : undefined;
+  let spouse = spouseId ? members.find((m) => m.id === spouseId) : undefined;
+
+  // 안전장치: 가문 성씨 기반 swap
+  // spouse가 가문 성씨이고 primary가 외성이면 교체 (한씨 집안 구성원이 항상 왼쪽)
+  if (familySurname && person && spouse) {
+    const personIsClan = person.surname === familySurname;
+    const spouseIsClan = spouse.surname === familySurname;
+    if (!personIsClan && spouseIsClan) {
+      const temp = person;
+      person = spouse;
+      spouse = temp;
+    }
+  }
 
   // Find children (from this person or their spouse)
   const childRels = parentChildRels.filter(
@@ -68,7 +104,7 @@ function buildNode(
   const uniqueChildIds = [...new Set(childRels.map((r) => r.toId))];
 
   const children = uniqueChildIds
-    .map((childId) => buildNode(childId, members, parentChildRels, spouseRels))
+    .map((childId) => buildNode(childId, members, parentChildRels, spouseRels, familySurname))
     .filter(Boolean)
     .sort(
       (a, b) => (a!.birthOrder || 1) - (b!.birthOrder || 1)

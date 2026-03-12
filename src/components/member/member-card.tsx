@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
+
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import type { FamilyMember } from "@/types/family";
+import { Pencil } from "lucide-react";
 
 interface MemberCardProps {
   member: FamilyMember;
@@ -14,11 +15,11 @@ export function MemberCard({ member, onEdit }: MemberCardProps) {
   return (
     <div
       className={cn(
-        "bg-card rounded-xl border border-border p-4 hover:shadow-md transition-shadow cursor-pointer",
-        !member.isAlive && "opacity-75"
+        "bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-all duration-200 cursor-pointer group",
+        !member.isAlive && "opacity-70"
       )}
     >
-      <Link href={`/members/${member.id}`} className="flex items-center gap-3">
+      <a href={`/members/${member.id}`} className="flex items-center gap-3">
         <Avatar
           name={member.nameKorean}
           src={member.profileImage}
@@ -27,32 +28,39 @@ export function MemberCard({ member, onEdit }: MemberCardProps) {
         />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-heading font-bold text-foreground truncate">
+            <h3 className="font-semibold text-gray-900 truncate group-hover:text-primary transition-colors">
               {member.nameKorean}
             </h3>
             {member.nameHanja && (
-              <span className="text-xs text-muted">({member.nameHanja})</span>
+              <span className="text-xs text-gray-400">({member.nameHanja})</span>
             )}
           </div>
-          <p className="text-xs text-muted mt-0.5">
+          <p className="text-xs text-gray-500 mt-0.5">
             {member.generation + 1}세대
+            {member.generationCount ? ` · ${member.generationCount}대손` : ""}
             {member.occupation && ` · ${member.occupation}`}
           </p>
+          {(member.surname || member.clan || member.branch) && (
+            <p className="text-[10px] text-gray-400">
+              {[member.clan, member.surname && `${member.surname}씨`, member.branch].filter(Boolean).join(" ")}
+            </p>
+          )}
           {member.currentPlace && (
-            <p className="text-xs text-muted">{member.currentPlace}</p>
+            <p className="text-xs text-gray-400">{member.currentPlace}</p>
           )}
           {!member.isAlive && (
-            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded bg-primary-light text-muted">
+            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
               작고
             </span>
           )}
         </div>
-      </Link>
+      </a>
       {onEdit && (
         <button
           onClick={(e) => { e.preventDefault(); onEdit(member); }}
-          className="mt-2 text-xs text-primary hover:underline"
+          className="mt-2 flex items-center gap-1 text-xs text-gray-400 hover:text-primary transition-colors"
         >
+          <Pencil className="w-3 h-3" />
           수정
         </button>
       )}

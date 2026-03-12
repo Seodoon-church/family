@@ -1,7 +1,5 @@
 .traditional-tree-container {
-  background-color: #F5E6C8;
-  background-image: url('/patterns/hanji-texture.png');
-  background-repeat: repeat;
+  background-color: #F9FAFB;
   min-height: 100%;
   position: relative;
   overflow: auto;
@@ -13,70 +11,75 @@
 }
 
 .traditional-node:hover {
-  filter: brightness(0.95);
+  filter: brightness(0.97);
 }
 
 .traditional-node rect {
-  stroke: #4A2C17;
-  stroke-width: 1.5;
-  fill: #FFF8F0;
+  stroke: #D1D5DB;
+  stroke-width: 1;
+  fill: #FFFFFF;
+  rx: 6;
 }
 
 .traditional-node.male rect {
-  fill: #F0EBE0;
+  fill: #F0F9FF;
+  stroke: #BAE6FD;
 }
 
 .traditional-node.female rect {
-  fill: #FFF0F0;
+  fill: #FFF1F2;
+  stroke: #FECDD3;
 }
 
 .traditional-node.deceased rect {
-  fill: #E8E0D0;
+  fill: #F3F4F6;
   stroke-dasharray: 4 2;
+  stroke: #D1D5DB;
 }
 
 .traditional-node text.name-hanja {
-  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-family: "Pretendard", "Inter", sans-serif;
   font-size: 16px;
-  fill: #1A0F08;
+  fill: #111827;
   font-weight: 700;
 }
 
 .traditional-node text.name-korean {
-  font-family: "Nanum Myeongjo", serif;
+  font-family: "Pretendard", "Inter", sans-serif;
   font-size: 11px;
-  fill: #6B4226;
+  fill: #6B7280;
 }
 
 .traditional-node text.birth-year {
-  font-family: "Nanum Myeongjo", serif;
+  font-family: "Pretendard", "Inter", sans-serif;
   font-size: 9px;
-  fill: #A67B5B;
+  fill: #9CA3AF;
 }
 
 .traditional-link {
   fill: none;
-  stroke: #4A2C17;
+  stroke: #D1D5DB;
   stroke-width: 1.5;
 }
 
 .traditional-spouse-link {
   fill: none;
-  stroke: #C73E3A;
+  stroke: #F43F5E;
   stroke-width: 1;
   stroke-dasharray: 6 3;
 }
 
 .generation-label {
-  font-family: "Nanum Myeongjo", serif;
-  font-size: 14px;
-  fill: #A67B5B;
-  font-weight: 700;
+  font-family: "Pretendard", "Inter", sans-serif;
+  font-size: 13px;
+  fill: #6366F1;
+  font-weight: 600;
 }
 
 .tree-title {
-  font-family: "Nanum Brush Script", cursive;
-  font-size: 28px;
-  fill: #4A2C17;
+  font-family: "Pretendard", "Inter", sans-serif;
+  font-size: 22px;
+  fill: #111827;
+  font-weight: 700;
   text-anchor: middle;
 }

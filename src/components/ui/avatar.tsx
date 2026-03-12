@@ -20,7 +20,7 @@ export function Avatar({ src, name, size = "md", gender, className }: AvatarProp
     xl: "w-20 h-20 text-2xl",
   };
 
-  const bgColor = gender === "MALE" ? "bg-accent-blue" : gender === "FEMALE" ? "bg-accent-red" : "bg-primary";
+  const bgColor = gender === "MALE" ? "bg-sky-100 text-sky-600" : gender === "FEMALE" ? "bg-rose-100 text-rose-600" : "bg-primary-light text-primary";
 
   if (src) {
     return (
@@ -28,7 +28,7 @@ export function Avatar({ src, name, size = "md", gender, className }: AvatarProp
         src={src}
         alt={name}
         className={cn(
-          "rounded-full object-cover border-2 border-border",
+          "rounded-full object-cover ring-2 ring-white shadow-sm",
           sizeClasses[size],
           className
         )}
@@ -39,7 +39,7 @@ export function Avatar({ src, name, size = "md", gender, className }: AvatarProp
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center text-white font-heading font-bold border-2 border-border",
+        "rounded-full flex items-center justify-center font-semibold ring-2 ring-white shadow-sm",
         sizeClasses[size],
         bgColor,
         className

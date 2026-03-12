@@ -38,7 +38,7 @@ export default function GalleryPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-2xl">미디어 갤러리</h1>
+        <h1 className="text-xl font-semibold text-gray-900">미디어 갤러리</h1>
         <Button size="sm" onClick={() => setShowUpload(true)}>
           <Upload className="w-4 h-4 mr-1" />
           업로드

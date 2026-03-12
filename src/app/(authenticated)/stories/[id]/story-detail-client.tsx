@@ -9,7 +9,7 @@ import { StoryDetail } from "@/components/story/story-detail";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+
 import type { Story } from "@/types/story";
 
 export function StoryDetailClient() {
@@ -25,7 +25,7 @@ export function StoryDetailClient() {
     const fetchStory = async () => {
       const db = getFirebaseDb();
       const storyDoc = await getDoc(
-        doc(db, "families", userProfile.familyId, "stories", id)
+        doc(db, "families", userProfile.familyId!, "stories", id)
       );
       if (storyDoc.exists()) {
         setStory({ id: storyDoc.id, ...storyDoc.data() } as Story);
@@ -48,26 +48,26 @@ export function StoryDetailClient() {
     return (
       <div className="max-w-3xl mx-auto text-center py-12">
         <p className="text-muted">이야기를 찾을 수 없습니다.</p>
-        <Link href="/stories">
+        <a href="/stories">
           <Button variant="outline" className="mt-4">
             <ArrowLeft className="w-4 h-4 mr-1" />
             목록으로
           </Button>
-        </Link>
+        </a>
       </div>
     );
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
-      <Link href="/stories" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground">
+      <a href="/stories" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground">
         <ArrowLeft className="w-4 h-4" />
         이야기 목록
-      </Link>
+      </a>
 
       <StoryDetail
         story={story}
-        familyId={userProfile.familyId}
+        familyId={userProfile.familyId!}
         userId={user.uid}
         userName={userProfile.displayName}
       />

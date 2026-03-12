@@ -33,6 +33,9 @@ export function useRelationships(familyId: string | undefined) {
       })) as Relationship[];
       setRelationships(data);
       setLoading(false);
+    }, (error) => {
+      console.error("Failed to load relationships:", error);
+      setLoading(false);
     });
 
     return unsubscribe;

@@ -12,7 +12,7 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getFirebaseDb } from "@/lib/firebase";
 import type { FamilyMember } from "@/types/family";
 
 export function useMembers(familyId: string | undefined) {
@@ -25,44 +25,53 @@ export function useMembers(familyId: string | undefined) {
       return;
     }
 
+    const db = getFirebaseDb();
     const q = query(
       collection(db, "families", familyId, "members"),
-      orderBy("generation"),
-      orderBy("birthOrder")
+      orderBy("generation")
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
+      const data = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
       })) as FamilyMember[];
+      data.sort((a, b) => a.generation - b.generation || a.birthOrder - b.birthOrder);
       setMembers(data);
+      setLoading(false);
+    }, (err) => {
+      console.error("Members query error:", err);
       setLoading(false);
     });
 
     return unsubscribe;
   }, [familyId]);
 
-  const addMember = async (member: Omit<FamilyMember, "id" | "createdAt" | "updatedAt">) => {
+  const removeUndefined = (obj: Record<string, unknown>) => {
+    return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
+  };
+
+  const addMember = async (member: Omit<FamilyMember, "id" | "createdAt" | "updatedAt">): Promise<string | undefined> => {
     if (!familyId) return;
-    await addDoc(collection(db, "families", familyId, "members"), {
-      ...member,
+    const docRef = await addDoc(collection(getFirebaseDb(), "families", familyId, "members"), {
+      ...removeUndefined(member as Record<string, unknown>),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
+    return docRef.id;
   };
 
   const updateMember = async (memberId: string, data: Partial<FamilyMember>) => {
     if (!familyId) return;
-    await updateDoc(doc(db, "families", familyId, "members", memberId), {
-      ...data,
+    await updateDoc(doc(getFirebaseDb(), "families", familyId, "members", memberId), {
+      ...removeUndefined(data as Record<string, unknown>),
       updatedAt: serverTimestamp(),
     });
   };
 
   const deleteMember = async (memberId: string) => {
     if (!familyId) return;
-    await deleteDoc(doc(db, "families", familyId, "members", memberId));
+    await deleteDoc(doc(getFirebaseDb(), "families", familyId, "members", memberId));
   };
 
   return { members, loading, addMember, updateMember, deleteMember };

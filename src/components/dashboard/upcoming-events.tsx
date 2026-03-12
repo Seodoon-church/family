@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
 import { EVENT_CATEGORIES } from "@/lib/constants";
@@ -14,7 +14,6 @@ interface UpcomingEventsProps {
 export function UpcomingEvents({ events }: UpcomingEventsProps) {
   const now = new Date();
 
-  // For recurring events, calculate next occurrence this year
   const upcomingEvents = events
     .map((event) => {
       if (!event.eventDate?.toDate) return null;
@@ -38,22 +37,24 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
     .slice(0, 5);
 
   return (
-    <Link href="/timeline">
-      <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+    <a href="/timeline">
+      <Card className="cursor-pointer h-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-accent-gold" />
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-amber-600" />
+            </div>
             다가오는 이벤트
           </CardTitle>
         </CardHeader>
         <CardContent>
           {upcomingEvents.length === 0 ? (
             <div className="space-y-2">
-              <p className="text-sm text-muted">등록된 이벤트가 없습니다.</p>
-              <p className="text-xs text-primary">가족 기념일을 등록해보세요 &rarr;</p>
+              <p className="text-sm text-gray-500">등록된 이벤트가 없습니다.</p>
+              <p className="text-xs text-primary font-medium">가족 기념일을 등록해보세요 &rarr;</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {upcomingEvents.map((event) => {
                 if (!event) return null;
                 const cat = EVENT_CATEGORIES[event.category as keyof typeof EVENT_CATEGORIES];
@@ -64,16 +65,18 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
                 return (
                   <div
                     key={event.id}
-                    className="flex items-center justify-between py-1.5 border-b border-border last:border-0"
+                    className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
                   >
                     <div>
-                      <p className="text-sm font-medium">{event.title}</p>
-                      <p className="text-xs text-muted">
+                      <p className="text-sm font-medium text-gray-900">{event.title}</p>
+                      <p className="text-xs text-gray-400">
                         {formatDate(event.nextDate)}
                         {cat && ` · ${cat.label}`}
                       </p>
                     </div>
-                    <span className="text-xs font-medium text-primary shrink-0">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${
+                      daysUntil <= 3 ? "bg-rose-50 text-rose-600" : "bg-primary/10 text-primary"
+                    }`}>
                       {daysUntil === 0
                         ? "오늘"
                         : daysUntil === 1
@@ -87,6 +90,6 @@ export function UpcomingEvents({ events }: UpcomingEventsProps) {
           )}
         </CardContent>
       </Card>
-    </Link>
+    </a>
   );
 }

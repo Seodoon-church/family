@@ -17,8 +17,9 @@ interface AuthContextType {
   userProfile: UserProfile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string, familyId: string) => Promise<void>;
+  signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,24 +30,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const firebaseAuth = getFirebaseAuth();
-    const firebaseDb = getFirebaseDb();
-    const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
-      setUser(firebaseUser);
+    let unsubscribe: (() => void) | undefined;
 
-      if (firebaseUser) {
-        const userDoc = await getDoc(doc(firebaseDb, "users", firebaseUser.uid));
-        if (userDoc.exists()) {
-          setUserProfile({ id: userDoc.id, ...userDoc.data() } as UserProfile);
-        }
-      } else {
-        setUserProfile(null);
-      }
-
+    // Timeout fallback: if Firebase doesn't respond in 5 seconds, stop loading
+    const timeout = setTimeout(() => {
       setLoading(false);
-    });
+    }, 5000);
 
-    return unsubscribe;
+    try {
+      const firebaseAuth = getFirebaseAuth();
+      const firebaseDb = getFirebaseDb();
+      unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
+        clearTimeout(timeout);
+        setUser(firebaseUser);
+
+        if (firebaseUser) {
+          try {
+            const userDoc = await getDoc(doc(firebaseDb, "users", firebaseUser.uid));
+            if (userDoc.exists()) {
+              setUserProfile({ id: userDoc.id, ...userDoc.data() } as UserProfile);
+            }
+          } catch (err) {
+            console.error("Failed to load user profile:", err);
+          }
+        } else {
+          setUserProfile(null);
+        }
+
+        setLoading(false);
+      });
+    } catch (err) {
+      console.error("Firebase initialization failed:", err);
+      clearTimeout(timeout);
+      setLoading(false);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+      unsubscribe?.();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -57,16 +79,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
     displayName: string,
-    familyId: string
   ) => {
     const credential = await createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
     await setDoc(doc(getFirebaseDb(), "users", credential.user.uid), {
       email,
       displayName,
-      familyId,
       role: "MEMBER",
       createdAt: serverTimestamp(),
     });
+  };
+
+  const refreshProfile = async () => {
+    const currentUser = getFirebaseAuth().currentUser;
+    if (currentUser) {
+      const userDoc = await getDoc(doc(getFirebaseDb(), "users", currentUser.uid));
+      if (userDoc.exists()) {
+        setUserProfile({ id: userDoc.id, ...userDoc.data() } as UserProfile);
+      }
+    }
   };
 
   const signOut = async () => {
@@ -75,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, userProfile, loading, signIn, signUp, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

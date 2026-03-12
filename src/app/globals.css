@@ -1,21 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Brush+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #F7F0E3;
-  --foreground: #2D1A0E;
-  --primary: #8B5E3C;
-  --primary-light: #F5E6C8;
-  --primary-dark: #6B4226;
-  --accent-red: #C73E3A;
-  --accent-blue: #2E5984;
-  --accent-green: #4A7C59;
-  --accent-gold: #C5A55A;
-  --accent-cream: #F7F0E3;
-  --border: #E8D4A8;
-  --muted: #A67B5B;
+  --background: #F9FAFB;
+  --foreground: #111827;
+  --primary: #6366F1;
+  --primary-light: #EEF2FF;
+  --primary-dark: #4338CA;
+  --accent-red: #F43F5E;
+  --accent-blue: #0EA5E9;
+  --accent-green: #10B981;
+  --accent-gold: #F59E0B;
+  --accent-cream: #F9FAFB;
+  --border: #E5E7EB;
+  --muted: #6B7280;
   --card: #FFFFFF;
-  --card-foreground: #2D1A0E;
+  --card-foreground: #111827;
 }
 
 @theme inline {
@@ -33,9 +33,12 @@
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --font-heading: "Nanum Myeongjo", serif;
-  --font-body: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-brush: "Nanum Brush Script", cursive;
+  --font-heading: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -44,30 +47,26 @@ body {
   font-family: var(--font-body);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-}
-
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--primary-light);
+  background: #F3F4F6;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted);
+  background: #D1D5DB;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: #9CA3AF;
 }
 
 /* Selection color */
 ::selection {
-  background-color: var(--accent-gold);
-  color: var(--foreground);
+  background-color: #C7D2FE;
+  color: #312E81;
 }

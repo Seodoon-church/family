@@ -22,18 +22,23 @@ export function MemberProfile({ member }: MemberProfileProps) {
           size="xl"
         />
         <div className="text-center sm:text-left">
-          <h1 className="font-heading text-2xl font-bold">
+          <h1 className="text-2xl font-bold">
             {member.nameKorean}
             {member.nameHanja && (
-              <span className="text-lg text-muted ml-2">({member.nameHanja})</span>
+              <span className="text-lg text-gray-500 ml-2">({member.nameHanja})</span>
             )}
           </h1>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             {member.generation + 1}세대 · {member.gender === "MALE" ? "남" : "여"}
             {!member.isAlive && " · 작고"}
           </p>
-          {member.clan && (
-            <p className="text-sm text-primary mt-1">{member.clan}</p>
+          {(member.surname || member.clan || member.branch) && (
+            <p className="text-sm text-primary mt-1">
+              {[member.clan, member.surname && `${member.surname}씨`, member.branch].filter(Boolean).join(" ")}
+            </p>
+          )}
+          {member.generationCount && (
+            <p className="text-xs text-gray-500">{member.generationCount}대손{member.generationName && ` · 항렬: ${member.generationName}`}</p>
           )}
         </div>
       </div>
@@ -45,12 +50,12 @@ export function MemberProfile({ member }: MemberProfileProps) {
             <CardContent className="p-4 flex items-center gap-3">
               <Calendar className="w-5 h-5 text-accent-blue shrink-0" />
               <div>
-                <p className="text-xs text-muted">생년월일</p>
+                <p className="text-xs text-gray-500">생년월일</p>
                 <p className="text-sm font-medium">
                   {formatDate(member.birthDate.toDate())}
                 </p>
                 {member.birthDateLunar && (
-                  <p className="text-xs text-muted">음력 {member.birthDateLunar}</p>
+                  <p className="text-xs text-gray-500">음력 {member.birthDateLunar}</p>
                 )}
               </div>
             </CardContent>
@@ -62,7 +67,7 @@ export function MemberProfile({ member }: MemberProfileProps) {
             <CardContent className="p-4 flex items-center gap-3">
               <Briefcase className="w-5 h-5 text-accent-gold shrink-0" />
               <div>
-                <p className="text-xs text-muted">직업</p>
+                <p className="text-xs text-gray-500">직업</p>
                 <p className="text-sm font-medium">{member.occupation}</p>
               </div>
             </CardContent>
@@ -74,7 +79,7 @@ export function MemberProfile({ member }: MemberProfileProps) {
             <CardContent className="p-4 flex items-center gap-3">
               <MapPin className="w-5 h-5 text-accent-red shrink-0" />
               <div>
-                <p className="text-xs text-muted">거주지</p>
+                <p className="text-xs text-gray-500">거주지</p>
                 <p className="text-sm font-medium">{member.currentPlace}</p>
               </div>
             </CardContent>
@@ -86,7 +91,7 @@ export function MemberProfile({ member }: MemberProfileProps) {
             <CardContent className="p-4 flex items-center gap-3">
               <MapPin className="w-5 h-5 text-accent-green shrink-0" />
               <div>
-                <p className="text-xs text-muted">출생지</p>
+                <p className="text-xs text-gray-500">출생지</p>
                 <p className="text-sm font-medium">{member.birthPlace}</p>
               </div>
             </CardContent>
@@ -100,9 +105,9 @@ export function MemberProfile({ member }: MemberProfileProps) {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <BookOpen className="w-4 h-4 text-primary" />
-              <h3 className="font-heading text-sm font-bold">소개</h3>
+              <h3 className="text-sm font-bold">소개</h3>
             </div>
-            <p className="text-sm text-foreground whitespace-pre-wrap">{member.bio}</p>
+            <p className="text-sm text-gray-900 whitespace-pre-wrap">{member.bio}</p>
           </CardContent>
         </Card>
       )}

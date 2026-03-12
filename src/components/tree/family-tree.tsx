@@ -4,22 +4,28 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useMembers } from "@/hooks/use-members";
 import { useRelationships } from "@/hooks/use-relationships";
+import { useFamily } from "@/hooks/use-family";
 import { useTreeData } from "@/hooks/use-tree-data";
 import { ModernTree } from "./modern-tree";
 import { TraditionalTree } from "./traditional-tree";
 import { TreeControls } from "./tree-controls";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Button } from "@/components/ui/button";
-import { GitBranchPlus, ScrollText } from "lucide-react";
+import { GitBranchPlus, ScrollText, User } from "lucide-react";
 import type { TreeViewMode } from "@/types/tree";
 
 export function FamilyTree() {
   const [viewMode, setViewMode] = useState<TreeViewMode>("modern");
   const [zoom, setZoom] = useState(1);
+  const [showMyView, setShowMyView] = useState(false);
   const { userProfile } = useAuth();
   const { members, loading: membersLoading } = useMembers(userProfile?.familyId);
   const { relationships, loading: relsLoading } = useRelationships(userProfile?.familyId);
-  const treeData = useTreeData(members, relationships);
+  const { family } = useFamily(userProfile?.familyId);
+
+  // 내 중심 보기: 하이라이트할 멤버 ID
+  const highlightId = showMyView && userProfile?.memberId ? userProfile.memberId : undefined;
+  const treeData = useTreeData(members, relationships, family?.surname, highlightId);
 
   const loading = membersLoading || relsLoading;
 
@@ -35,8 +41,8 @@ export function FamilyTree() {
     return (
       <div className="flex items-center justify-center min-h-[500px]">
         <div className="text-center space-y-3">
-          <p className="font-heading text-lg">가족 구성원을 먼저 등록해주세요</p>
-          <p className="text-sm text-muted">
+          <p className="font-semibold text-lg">가족 구성원을 먼저 등록해주세요</p>
+          <p className="text-sm text-gray-500">
             구성원과 관계를 등록하면 가계도가 자동으로 생성됩니다.
           </p>
         </div>
@@ -47,7 +53,7 @@ export function FamilyTree() {
   return (
     <div className="flex flex-col h-full">
       {/* Controls */}
-      <div className="flex items-center justify-between p-3 border-b border-border bg-card">
+      <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-card">
         <div className="flex items-center gap-2">
           <Button
             variant={viewMode === "modern" ? "primary" : "outline"}
@@ -65,6 +71,21 @@ export function FamilyTree() {
             <ScrollText className="w-4 h-4 mr-1" />
             전통 족보
           </Button>
+
+          {/* 내 중심 보기 토글 */}
+          {userProfile?.memberId && (
+            <>
+              <div className="w-px h-5 bg-gray-200 mx-1" />
+              <Button
+                variant={showMyView ? "primary" : "outline"}
+                size="sm"
+                onClick={() => setShowMyView(!showMyView)}
+              >
+                <User className="w-4 h-4 mr-1" />
+                {showMyView ? "전체 보기" : "나 찾기"}
+              </Button>
+            </>
+          )}
         </div>
         <TreeControls zoom={zoom} onZoomChange={setZoom} />
       </div>

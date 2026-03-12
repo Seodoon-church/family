@@ -9,6 +9,7 @@ export interface TreePerson {
   profileImage?: string;
   generation: number;
   birthOrder: number;
+  isHighlighted?: boolean;
   spouse?: TreePerson;
   children: TreePerson[];
 }

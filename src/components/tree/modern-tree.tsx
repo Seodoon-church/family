@@ -103,9 +103,9 @@ export function ModernTree({ data }: ModernTreeProps) {
                 key={`${node.person.id}-${child.person.id}`}
                 d={`M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`}
                 fill="none"
-                stroke="#C4956A"
+                stroke="#D1D5DB"
                 strokeWidth={2}
-                opacity={0.6}
+                opacity={0.8}
               />
             );
           })
@@ -119,7 +119,7 @@ export function ModernTree({ data }: ModernTreeProps) {
             y1={node.y + NODE_H / 2}
             x2={node.x + NODE_W + SPOUSE_GAP}
             y2={node.y + NODE_H / 2}
-            stroke="#C73E3A"
+            stroke="#F43F5E"
             strokeWidth={2}
             strokeDasharray="4 3"
           />
@@ -145,9 +145,10 @@ export function ModernTree({ data }: ModernTreeProps) {
 
 function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number }) {
   const isMale = person.gender === "MALE";
-  const bgColor = isMale ? "#EBF2F8" : "#FDF0F0";
-  const borderColor = isMale ? "#2E5984" : "#C73E3A";
-  const textColor = isMale ? "#2E5984" : "#C73E3A";
+  const isHighlighted = person.isHighlighted === true;
+  const bgColor = isHighlighted ? (isMale ? "#DBEAFE" : "#FCE7F3") : (isMale ? "#F0F9FF" : "#FFF1F2");
+  const borderColor = isHighlighted ? "#6366F1" : (isMale ? "#7DD3FC" : "#FDA4AF");
+  const accentColor = isMale ? "#0EA5E9" : "#F43F5E";
 
   const birthYear = person.birthDate
     ? new Date(person.birthDate).getFullYear()
@@ -155,15 +156,30 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
 
   return (
     <g className="cursor-pointer" style={{ transition: "opacity 0.2s" }}>
+      {/* Highlight glow for "나 찾기" */}
+      {isHighlighted && (
+        <rect
+          x={x - 3}
+          y={y - 3}
+          width={NODE_W + 6}
+          height={NODE_H + 6}
+          rx={19}
+          fill="none"
+          stroke="#6366F1"
+          strokeWidth={2.5}
+          opacity={0.6}
+          className="animate-pulse"
+        />
+      )}
       <rect
         x={x}
         y={y}
         width={NODE_W}
         height={NODE_H}
-        rx={12}
+        rx={16}
         fill={bgColor}
         stroke={borderColor}
-        strokeWidth={1.5}
+        strokeWidth={isHighlighted ? 2 : 1.5}
         opacity={person.isAlive ? 1 : 0.6}
       />
       {/* Avatar circle */}
@@ -171,7 +187,7 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
         cx={x + 28}
         cy={y + NODE_H / 2}
         r={18}
-        fill={borderColor}
+        fill={accentColor}
         opacity={0.15}
       />
       <text
@@ -180,7 +196,7 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
         textAnchor="middle"
         fontSize={14}
         fontWeight="bold"
-        fill={borderColor}
+        fill={accentColor}
       >
         {person.nameKorean.charAt(0)}
       </text>
@@ -191,8 +207,8 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
         y={y + NODE_H / 2 - 4}
         fontSize={13}
         fontWeight="bold"
-        fill="#2D1A0E"
-        fontFamily='"Nanum Myeongjo", serif'
+        fill="#111827"
+        fontFamily='"Pretendard", "Inter", sans-serif'
       >
         {person.nameKorean}
       </text>
@@ -203,7 +219,7 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
           x={x + 55}
           y={y + NODE_H / 2 + 14}
           fontSize={10}
-          fill="#A67B5B"
+          fill="#9CA3AF"
         >
           {birthYear}년생
           {!person.isAlive && " (작고)"}
@@ -215,7 +231,7 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
         cx={x + NODE_W - 12}
         cy={y + 12}
         r={4}
-        fill={textColor}
+        fill={accentColor}
       />
     </g>
   );

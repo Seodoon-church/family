@@ -14,7 +14,7 @@ import {
   limit,
   where,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getFirebaseDb } from "@/lib/firebase";
 import type { Story, StoryCategory } from "@/types/story";
 
 export function useStories(familyId: string | undefined, category?: StoryCategory) {
@@ -29,13 +29,13 @@ export function useStories(familyId: string | undefined, category?: StoryCategor
 
     const q = category
       ? query(
-          collection(db, "families", familyId, "stories"),
+          collection(getFirebaseDb(), "families", familyId, "stories"),
           where("category", "==", category),
           orderBy("createdAt", "desc"),
           limit(50)
         )
       : query(
-          collection(db, "families", familyId, "stories"),
+          collection(getFirebaseDb(), "families", familyId, "stories"),
           orderBy("createdAt", "desc"),
           limit(50)
         );
@@ -47,6 +47,9 @@ export function useStories(familyId: string | undefined, category?: StoryCategor
       })) as Story[];
       setStories(data);
       setLoading(false);
+    }, (error) => {
+      console.error("Failed to load stories:", error);
+      setLoading(false);
     });
 
     return unsubscribe;
@@ -54,7 +57,7 @@ export function useStories(familyId: string | undefined, category?: StoryCategor
 
   const addStory = async (story: Omit<Story, "id" | "createdAt" | "updatedAt" | "commentCount">) => {
     if (!familyId) return;
-    await addDoc(collection(db, "families", familyId, "stories"), {
+    await addDoc(collection(getFirebaseDb(), "families", familyId, "stories"), {
       ...story,
       commentCount: 0,
       createdAt: serverTimestamp(),
@@ -64,7 +67,7 @@ export function useStories(familyId: string | undefined, category?: StoryCategor
 
   const updateStory = async (storyId: string, data: Partial<Story>) => {
     if (!familyId) return;
-    await updateDoc(doc(db, "families", familyId, "stories", storyId), {
+    await updateDoc(doc(getFirebaseDb(), "families", familyId, "stories", storyId), {
       ...data,
       updatedAt: serverTimestamp(),
     });
@@ -72,7 +75,7 @@ export function useStories(familyId: string | undefined, category?: StoryCategor
 
   const deleteStory = async (storyId: string) => {
     if (!familyId) return;
-    await deleteDoc(doc(db, "families", familyId, "stories", storyId));
+    await deleteDoc(doc(getFirebaseDb(), "families", familyId, "stories", storyId));
   };
 
   return { stories, loading, addStory, updateStory, deleteStory };

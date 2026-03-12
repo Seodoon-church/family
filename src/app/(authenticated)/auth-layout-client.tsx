@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -13,11 +13,27 @@ export function AuthLayoutClient({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, userProfile, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (loading) {
+  const isSetupPage = pathname === "/setup" || pathname === "/setup/";
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/");
+      return;
+    }
+
+    // If user is logged in but has no familyId, redirect to setup
+    // (except if already on the setup page)
+    if (!loading && user && userProfile && !userProfile.familyId && !isSetupPage) {
+      router.push("/setup");
+    }
+  }, [loading, user, userProfile, router, isSetupPage]);
+
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner size="lg" text="불러오는 중..." />
@@ -25,9 +41,24 @@ export function AuthLayoutClient({
     );
   }
 
-  if (!user) {
-    router.push("/");
-    return null;
+  // Setup page: show without sidebar/header (clean layout)
+  if (isSetupPage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent-blue/5">
+        <div className="px-4 py-6">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+  // If no familyId yet, show loading (will redirect to setup)
+  if (!userProfile?.familyId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner size="lg" text="불러오는 중..." />
+      </div>
+    );
   }
 
   return (

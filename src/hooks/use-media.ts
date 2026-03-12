@@ -18,7 +18,7 @@ import {
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { getFirebaseDb, getFirebaseStorage } from "@/lib/firebase";
 import type { Media } from "@/types/media";
 
 export function useMedia(familyId: string | undefined) {
@@ -33,7 +33,7 @@ export function useMedia(familyId: string | undefined) {
     }
 
     const q = query(
-      collection(db, "families", familyId, "media"),
+      collection(getFirebaseDb(), "families", familyId, "media"),
       orderBy("createdAt", "desc"),
       limit(50)
     );
@@ -44,6 +44,9 @@ export function useMedia(familyId: string | undefined) {
         ...doc.data(),
       })) as Media[];
       setMediaList(data);
+      setLoading(false);
+    }, (error) => {
+      console.error("Failed to load media:", error);
       setLoading(false);
     });
 
@@ -65,7 +68,7 @@ export function useMedia(familyId: string | undefined) {
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
     const storagePath = `families/${familyId}/media/${fileName}`;
-    const storageRef = ref(storage, storagePath);
+    const storageRef = ref(getFirebaseStorage(), storagePath);
 
     const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -91,7 +94,7 @@ export function useMedia(familyId: string | undefined) {
             : "AUDIO";
 
           const mediaDoc = await addDoc(
-            collection(db, "families", familyId, "media"),
+            collection(getFirebaseDb(), "families", familyId, "media"),
             {
               type: mediaType,
               fileName: file.name,
@@ -128,11 +131,11 @@ export function useMedia(familyId: string | undefined) {
     if (!familyId) return;
 
     // Delete from Storage
-    const storageRef = ref(storage, media.storagePath);
+    const storageRef = ref(getFirebaseStorage(), media.storagePath);
     await deleteObject(storageRef).catch(() => {});
 
     // Delete from Firestore
-    await deleteDoc(doc(db, "families", familyId, "media", media.id));
+    await deleteDoc(doc(getFirebaseDb(), "families", familyId, "media", media.id));
   };
 
   return { mediaList, loading, uploadProgress, uploadMedia, deleteMedia };

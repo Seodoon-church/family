@@ -67,7 +67,7 @@ export function MediaUpload({ onUpload, onClose, uploadProgress }: MediaUploadPr
   };
 
   const getFileIcon = () => {
-    if (!file) return <Upload className="w-8 h-8 text-muted" />;
+    if (!file) return <Upload className="w-8 h-8 text-gray-500" />;
     if (file.type.startsWith("image/")) return <Image className="w-8 h-8 text-accent-green" />;
     if (file.type.startsWith("video/")) return <Video className="w-8 h-8 text-accent-blue" />;
     return <Mic className="w-8 h-8 text-accent-gold" />;
@@ -75,10 +75,10 @@ export function MediaUpload({ onUpload, onClose, uploadProgress }: MediaUploadPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-border">
-          <h2 className="font-heading text-lg">미디어 업로드</h2>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-primary-light">
+      <div className="bg-card rounded-2xl border border-gray-200 shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200">
+          <h2 className="font-semibold text-lg">미디어 업로드</h2>
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-primary/10">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -87,7 +87,7 @@ export function MediaUpload({ onUpload, onClose, uploadProgress }: MediaUploadPr
           {/* Drop Zone */}
           <div
             className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
-              dragActive ? "border-primary bg-primary-light/30" : "border-border hover:border-primary/50"
+              dragActive ? "border-primary bg-primary/5" : "border-gray-200 hover:border-primary/50"
             }`}
             onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
             onDragLeave={() => setDragActive(false)}
@@ -107,14 +107,14 @@ export function MediaUpload({ onUpload, onClose, uploadProgress }: MediaUploadPr
             ) : (
               <>
                 {getFileIcon()}
-                <p className="text-sm text-muted mt-2">
+                <p className="text-sm text-gray-500 mt-2">
                   {file ? file.name : "파일을 드래그하거나 클릭하여 선택"}
                 </p>
               </>
             )}
 
             {file && !preview && (
-              <p className="text-xs text-muted mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 {file.name} ({(file.size / 1024 / 1024).toFixed(1)}MB)
               </p>
             )}
@@ -131,11 +131,11 @@ export function MediaUpload({ onUpload, onClose, uploadProgress }: MediaUploadPr
           />
 
           <div>
-            <label className="text-sm font-medium text-foreground mb-1 block">설명</label>
+            <label className="text-sm font-medium text-gray-900 mb-1 block">설명</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm min-h-[60px] focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm min-h-[60px] focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="사진/영상에 대한 설명 (선택)"
             />
           </div>
@@ -143,13 +143,13 @@ export function MediaUpload({ onUpload, onClose, uploadProgress }: MediaUploadPr
           {/* Progress */}
           {uploadProgress !== null && (
             <div className="space-y-1">
-              <div className="h-2 bg-primary-light rounded-full overflow-hidden">
+              <div className="h-2 bg-primary/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
-              <p className="text-xs text-muted text-center">{Math.round(uploadProgress)}%</p>
+              <p className="text-xs text-gray-500 text-center">{Math.round(uploadProgress)}%</p>
             </div>
           )}
 

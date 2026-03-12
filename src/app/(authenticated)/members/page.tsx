@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useMembers } from "@/hooks/use-members";
 import { useRelationships } from "@/hooks/use-relationships";
+import { useFamily } from "@/hooks/use-family";
 import { MemberCard } from "@/components/member/member-card";
 import { MemberForm } from "@/components/member/member-form";
 import { RelationshipManager } from "@/components/member/relationship-manager";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Users } from "lucide-react";
 import type { FamilyMember } from "@/types/family";
 
 export default function MembersPage() {
@@ -18,12 +19,20 @@ export default function MembersPage() {
   const familyId = userProfile?.familyId;
   const { members, loading, addMember, updateMember, deleteMember } = useMembers(familyId);
   const { relationships, addRelationship, deleteRelationship } = useRelationships(familyId);
+  const { family } = useFamily(familyId);
   const [showForm, setShowForm] = useState(false);
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
   const isAdmin = userProfile?.role === "ADMIN";
 
-  const handleAdd = async (data: Partial<FamilyMember>) => {
-    await addMember(data as Omit<FamilyMember, "id" | "createdAt" | "updatedAt">);
+  const handleAdd = async (data: Partial<FamilyMember>, relation?: { memberId: string; type: "SPOUSE" | "PARENT_CHILD" }) => {
+    const docRef = await addMember(data as Omit<FamilyMember, "id" | "createdAt" | "updatedAt">);
+    if (relation && docRef) {
+      if (relation.type === "SPOUSE") {
+        await addRelationship(relation.memberId, docRef, "SPOUSE");
+      } else {
+        await addRelationship(relation.memberId, docRef, "PARENT_CHILD");
+      }
+    }
     setShowForm(false);
   };
 
@@ -53,7 +62,7 @@ export default function MembersPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-2xl">가족 구성원</h1>
+        <h1 className="text-xl font-semibold text-gray-900">가족 구성원</h1>
         {isAdmin && (
           <Button size="sm" onClick={() => setShowForm(true)}>
             <UserPlus className="w-4 h-4 mr-1" />
@@ -63,12 +72,15 @@ export default function MembersPage() {
       </div>
 
       {members.length === 0 ? (
-        <Card className="min-h-[300px] flex items-center justify-center">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm min-h-[300px] flex items-center justify-center">
           <div className="text-center space-y-3">
-            <p className="text-lg font-heading text-foreground">
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 mx-auto flex items-center justify-center">
+              <Users className="w-8 h-8 text-gray-300" />
+            </div>
+            <p className="font-semibold text-gray-900">
               아직 등록된 구성원이 없습니다
             </p>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-gray-500">
               가족 구성원을 추가하여 가계도를 만들어보세요.
             </p>
             {isAdmin && (
@@ -78,7 +90,7 @@ export default function MembersPage() {
               </Button>
             )}
           </div>
-        </Card>
+        </div>
       ) : (
         <>
           {/* Members by generation */}
@@ -86,8 +98,9 @@ export default function MembersPage() {
             .sort((a, b) => Number(a) - Number(b))
             .map((gen) => (
               <div key={gen}>
-                <h2 className="font-heading text-lg text-primary mb-3">
-                  {Number(gen) + 1}세대
+                <h2 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center text-xs">{Number(gen) + 1}</span>
+                  세대
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {generations[Number(gen)]
@@ -125,6 +138,8 @@ export default function MembersPage() {
       {/* Add Member Form */}
       {showForm && (
         <MemberForm
+          existingMembers={members}
+          family={family}
           onSubmit={handleAdd}
           onCancel={() => setShowForm(false)}
         />
