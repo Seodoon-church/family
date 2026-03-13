@@ -55,7 +55,7 @@ function SidebarNav({ pathname, onClose }: { pathname: string; onClose: () => vo
       {navGroups.map((group, gi) => (
         <div key={gi} className={gi > 0 ? "mt-5" : ""}>
           {group.label && (
-            <p className="px-3 mb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+            <p className="px-3 mb-1.5 text-[11px] font-semibold text-muted uppercase tracking-wider">
               {group.label}
             </p>
           )}
@@ -72,11 +72,11 @@ function SidebarNav({ pathname, onClose }: { pathname: string; onClose: () => vo
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 cursor-pointer",
                     isActive
-                      ? "bg-primary text-white"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      ? "bg-primary-light text-primary-dark border-l-[3px] border-l-primary"
+                      : "text-foreground/70 hover:bg-warm-hover hover:text-foreground"
                   )}
                 >
-                  <Icon className={cn("w-[18px] h-[18px]", isActive ? "text-white" : "text-gray-400")} />
+                  <Icon className={cn("w-[18px] h-[18px]", isActive ? "text-primary" : "text-muted")} />
                   {item.label}
                 </a>
               );
@@ -94,11 +94,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar - always visible, normal flow */}
-      <aside className="hidden md:flex flex-col w-60 shrink-0 h-full bg-white border-r border-gray-200">
+      <aside className="hidden md:flex flex-col w-60 shrink-0 h-full bg-background border-r border-border">
         <div className="p-3">
           <a
             href="/stories/new"
-            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors shadow-sm"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors shadow-sm shadow-primary/20"
           >
             <PenSquare className="w-4 h-4" />
             이야기 쓰기
@@ -110,7 +110,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm md:hidden"
           onClick={onClose}
         />
       )}
@@ -118,24 +118,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Mobile sidebar - fixed overlay */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 h-full w-60 bg-white border-r border-gray-200 flex flex-col md:hidden",
+          "fixed top-0 left-0 z-50 h-full w-60 bg-card border-r border-border flex flex-col md:hidden",
           "transition-transform duration-200 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-white font-bold text-xs">家</span>
             </div>
-            <span className="font-semibold text-gray-900">우리家 이야기</span>
+            <span className="font-semibold text-foreground">우리家 이야기</span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-warm-hover transition-colors"
             aria-label="메뉴 닫기"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-muted" />
           </button>
         </div>
         <SidebarNav pathname={pathname} onClose={onClose} />

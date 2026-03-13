@@ -182,13 +182,13 @@ export default function SetupPage() {
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
                     isActive
                       ? "bg-primary text-white"
-                      : "bg-gray-100 text-gray-400"
+                      : "bg-warm-hover text-muted"
                   }`}
                 >
                   {i < currentIndex ? <Check className="w-4 h-4" /> : i + 1}
                 </div>
                 {i < 4 && (
-                  <div className={`w-8 h-0.5 ${isActive ? "bg-primary" : "bg-gray-200"}`} />
+                  <div className={`w-8 h-0.5 ${isActive ? "bg-primary" : "bg-warm-subtle"}`} />
                 )}
               </div>
             );
@@ -208,7 +208,7 @@ export default function SetupPage() {
             />
             <button
               onClick={() => setStep("done")}
-              className="w-full text-center text-sm text-gray-400 hover:text-gray-600 transition-colors py-2"
+              className="w-full text-center text-sm text-muted hover:text-foreground/70 transition-colors py-2"
             >
               나중에 등록하기
             </button>
@@ -216,7 +216,7 @@ export default function SetupPage() {
         )}
 
         {step !== "tree-builder" && (
-        <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-7">
+        <div className="bg-card rounded-2xl warm-shadow-lg border border-border p-7">
           {/* Step: Choose */}
           {step === "choose" && (
             <div className="space-y-6">
@@ -224,8 +224,8 @@ export default function SetupPage() {
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 mx-auto mb-4 flex items-center justify-center">
                   <Users className="w-7 h-7 text-primary" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-1">가족 설정</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-xl font-bold text-foreground mb-1">가족 설정</h2>
+                <p className="text-sm text-muted">
                   새 가족을 만들거나, 초대코드로 기존 가족에 합류하세요.
                 </p>
               </div>
@@ -233,30 +233,30 @@ export default function SetupPage() {
               <div className="space-y-3">
                 <button
                   onClick={() => { setStep("create"); setError(""); }}
-                  className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-100 hover:border-primary hover:bg-primary/5 transition-all group"
+                  className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all group"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
                     <Users className="w-6 h-6 text-primary" />
                   </div>
                   <div className="text-left flex-1">
-                    <p className="font-semibold text-gray-900">새 가족 만들기</p>
-                    <p className="text-xs text-gray-500">관리자로서 가족을 새로 생성합니다</p>
+                    <p className="font-semibold text-foreground">새 가족 만들기</p>
+                    <p className="text-xs text-muted">관리자로서 가족을 새로 생성합니다</p>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors" />
+                  <ArrowRight className="w-5 h-5 text-warm-subtle group-hover:text-primary transition-colors" />
                 </button>
 
                 <button
                   onClick={() => { setStep("join"); setError(""); }}
-                  className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-gray-100 hover:border-emerald-500 hover:bg-emerald-50 transition-all group"
+                  className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-border hover:border-accent-green hover:bg-accent-green/10 transition-all group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 group-hover:bg-emerald-100 transition-colors">
-                    <UserPlus className="w-6 h-6 text-emerald-600" />
+                  <div className="w-12 h-12 rounded-xl bg-accent-green/10 flex items-center justify-center shrink-0 group-hover:bg-accent-green/20 transition-colors">
+                    <UserPlus className="w-6 h-6 text-accent-green" />
                   </div>
                   <div className="text-left flex-1">
-                    <p className="font-semibold text-gray-900">초대코드로 가입</p>
-                    <p className="text-xs text-gray-500">가족 관리자에게 받은 코드로 합류합니다</p>
+                    <p className="font-semibold text-foreground">초대코드로 가입</p>
+                    <p className="text-xs text-muted">가족 관리자에게 받은 코드로 합류합니다</p>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-emerald-500 transition-colors" />
+                  <ArrowRight className="w-5 h-5 text-warm-subtle group-hover:text-accent-green transition-colors" />
                 </button>
               </div>
             </div>
@@ -266,8 +266,8 @@ export default function SetupPage() {
           {step === "create" && (
             <div className="space-y-5">
               <div className="text-center">
-                <h2 className="text-xl font-bold text-gray-900 mb-1">새 가족 만들기</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-xl font-bold text-foreground mb-1">새 가족 만들기</h2>
+                <p className="text-sm text-muted">
                   가족의 이름을 정해주세요. (예: 김해 김씨 가족)
                 </p>
               </div>
@@ -281,7 +281,7 @@ export default function SetupPage() {
                 required
               />
 
-              {error && <p className="text-sm text-rose-500 text-center">{error}</p>}
+              {error && <p className="text-sm text-accent-red text-center">{error}</p>}
 
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => setStep("choose")} className="flex-1">
@@ -299,8 +299,8 @@ export default function SetupPage() {
           {step === "join" && (
             <div className="space-y-5">
               <div className="text-center">
-                <h2 className="text-xl font-bold text-gray-900 mb-1">초대코드로 가입</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-xl font-bold text-foreground mb-1">초대코드로 가입</h2>
+                <p className="text-sm text-muted">
                   가족 관리자에게 받은 6자리 코드를 입력하세요.
                 </p>
               </div>
@@ -315,7 +315,7 @@ export default function SetupPage() {
                 required
               />
 
-              {error && <p className="text-sm text-rose-500 text-center">{error}</p>}
+              {error && <p className="text-sm text-accent-red text-center">{error}</p>}
 
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => setStep("choose")} className="flex-1">
@@ -333,8 +333,8 @@ export default function SetupPage() {
           {step === "register" && (
             <div className="space-y-5">
               <div className="text-center">
-                <h2 className="text-xl font-bold text-gray-900 mb-1">본인 정보 등록</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-xl font-bold text-foreground mb-1">본인 정보 등록</h2>
+                <p className="text-sm text-muted">
                   가계도에 등록할 본인의 기본 정보를 입력하세요.
                 </p>
               </div>
@@ -342,7 +342,7 @@ export default function SetupPage() {
               {/* Show invite code if just created */}
               {generatedCode && (
                 <div className="bg-primary/5 rounded-xl p-4 text-center">
-                  <p className="text-xs text-gray-500 mb-1">가족 초대코드</p>
+                  <p className="text-xs text-muted mb-1">가족 초대코드</p>
                   <div className="flex items-center justify-center gap-2">
                     <span className="text-2xl font-mono font-bold text-primary tracking-widest">
                       {generatedCode}
@@ -353,13 +353,13 @@ export default function SetupPage() {
                       title="복사"
                     >
                       {codeCopied ? (
-                        <Check className="w-4 h-4 text-emerald-500" />
+                        <Check className="w-4 h-4 text-accent-green" />
                       ) : (
                         <Copy className="w-4 h-4 text-primary" />
                       )}
                     </button>
                   </div>
-                  <p className="text-[11px] text-gray-400 mt-1">이 코드를 가족에게 공유하세요</p>
+                  <p className="text-[11px] text-muted mt-1">이 코드를 가족에게 공유하세요</p>
                 </div>
               )}
 
@@ -373,7 +373,7 @@ export default function SetupPage() {
               />
 
               <div>
-                <label className="text-sm font-medium text-gray-900 mb-1.5 block">성별 *</label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">성별 *</label>
                 <div className="flex gap-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -391,7 +391,7 @@ export default function SetupPage() {
                       name="setup-gender"
                       checked={gender === "FEMALE"}
                       onChange={() => setGender("FEMALE")}
-                      className="accent-rose-500"
+                      className="accent-accent-red"
                     />
                     <span className="text-sm">여성</span>
                   </label>
@@ -407,11 +407,11 @@ export default function SetupPage() {
               />
 
               <div>
-                <label className="text-sm font-medium text-gray-900 mb-1.5 block">세대</label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">세대</label>
                 <select
                   value={generation}
                   onChange={(e) => setGeneration(Number(e.target.value))}
-                  className="w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  className="w-full h-10 rounded-xl border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 >
                   {[1, 2, 3, 4, 5, 6].map((g) => (
                     <option key={g} value={g}>{g}세대</option>
@@ -419,7 +419,7 @@ export default function SetupPage() {
                 </select>
               </div>
 
-              {error && <p className="text-sm text-rose-500 text-center">{error}</p>}
+              {error && <p className="text-sm text-accent-red text-center">{error}</p>}
 
               <Button onClick={handleRegisterMember} disabled={submitting} className="w-full">
                 {submitting ? "등록 중..." : "등록 완료"}
@@ -431,19 +431,19 @@ export default function SetupPage() {
           {step === "done" && (
             <div className="space-y-6 text-center">
               <div>
-                <div className="w-16 h-16 rounded-full bg-emerald-100 mx-auto mb-4 flex items-center justify-center">
-                  <Check className="w-8 h-8 text-emerald-600" />
+                <div className="w-16 h-16 rounded-full bg-accent-green/15 mx-auto mb-4 flex items-center justify-center">
+                  <Check className="w-8 h-8 text-accent-green" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-1">설정 완료!</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-xl font-bold text-foreground mb-1">설정 완료!</h2>
+                <p className="text-sm text-muted">
                   모든 준비가 끝났습니다. 가족의 이야기를 시작하세요.
                 </p>
               </div>
 
               {generatedCode && (
-                <div className="bg-amber-50 rounded-xl p-4">
-                  <p className="text-xs text-amber-700 font-medium mb-1">잊지 마세요!</p>
-                  <p className="text-sm text-amber-600">
+                <div className="bg-accent-gold/10 rounded-xl p-4">
+                  <p className="text-xs text-accent-gold font-medium mb-1">잊지 마세요!</p>
+                  <p className="text-sm text-accent-gold">
                     가족 초대코드 <span className="font-mono font-bold">{generatedCode}</span>를
                     다른 가족에게 공유하세요.
                   </p>

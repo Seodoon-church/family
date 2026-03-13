@@ -75,12 +75,12 @@ export default function NewStoryPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <a href="/stories" className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-900 transition-colors mb-6">
+      <a href="/stories" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground transition-colors mb-6">
         <ArrowLeft className="w-4 h-4" />
         이야기 목록
       </a>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
+      <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
         <StoryEditor onSubmit={handleSubmit} />
         {uploadStatus && (
           <div className="mt-4 text-center">

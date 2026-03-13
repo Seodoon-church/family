@@ -165,8 +165,8 @@ export function MemberForm({ initialData, existingMembers = [], family, onSubmit
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-card rounded-2xl border border-gray-200 shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-5 border-b border-gray-200">
+      <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-border">
           <h2 className="font-semibold text-lg">
             {isEdit ? "구성원 수정" : "구성원 추가"}
           </h2>
@@ -186,7 +186,7 @@ export function MemberForm({ initialData, existingMembers = [], family, onSubmit
                 <img
                   src={previewUrl}
                   alt="프로필"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-border"
                 />
               ) : (
                 <Avatar name={formData.nameKorean || "?"} gender={formData.gender} size="lg" />
@@ -230,7 +230,7 @@ export function MemberForm({ initialData, existingMembers = [], family, onSubmit
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-900 mb-1 block">성별 *</label>
+            <label className="text-sm font-medium text-foreground mb-1 block">성별 *</label>
             <div className="flex gap-3">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -298,11 +298,11 @@ export function MemberForm({ initialData, existingMembers = [], family, onSubmit
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-900 mb-1 block">세대</label>
+              <label className="text-sm font-medium text-foreground mb-1 block">세대</label>
               <select
                 value={formData.generation}
                 onChange={(e) => handleGenerationChange(Number(e.target.value))}
-                className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full h-10 rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {[0, 1, 2, 3, 4, 5].map((g) => (
                   <option key={g} value={g}>{g + 1}세대</option>
@@ -385,19 +385,19 @@ export function MemberForm({ initialData, existingMembers = [], family, onSubmit
           />
 
           <div>
-            <label className="text-sm font-medium text-gray-900 mb-1 block">소개</label>
+            <label className="text-sm font-medium text-foreground mb-1 block">소개</label>
             <textarea
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="간단한 소개를 적어주세요"
             />
           </div>
 
           {/* Relationship */}
           {!isEdit && existingMembers.length > 0 && (
-            <div className="border-t border-gray-200 pt-4 space-y-3">
-              <label className="text-sm font-medium text-gray-900 block">관계 설정 (선택)</label>
+            <div className="border-t border-border pt-4 space-y-3">
+              <label className="text-sm font-medium text-foreground block">관계 설정 (선택)</label>
               <div className="flex gap-3">
                 <label className="flex items-center gap-1.5 cursor-pointer text-sm">
                   <input
@@ -442,7 +442,7 @@ export function MemberForm({ initialData, existingMembers = [], family, onSubmit
                   <select
                     value={relationMemberId}
                     onChange={(e) => setRelationMemberId(e.target.value)}
-                    className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full h-10 rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="">
                       {relationType === "SPOUSE" ? "누구의 배우자인가요?" : "누구의 자녀인가요?"}

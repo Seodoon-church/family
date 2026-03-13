@@ -103,7 +103,7 @@ export function ModernTree({ data }: ModernTreeProps) {
                 key={`${node.person.id}-${child.person.id}`}
                 d={`M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`}
                 fill="none"
-                stroke="#D1D5DB"
+                stroke="#D4C8BA"
                 strokeWidth={2}
                 opacity={0.8}
               />
@@ -119,7 +119,7 @@ export function ModernTree({ data }: ModernTreeProps) {
             y1={node.y + NODE_H / 2}
             x2={node.x + NODE_W + SPOUSE_GAP}
             y2={node.y + NODE_H / 2}
-            stroke="#F43F5E"
+            stroke="#C94040"
             strokeWidth={2}
             strokeDasharray="4 3"
           />
@@ -146,9 +146,9 @@ export function ModernTree({ data }: ModernTreeProps) {
 function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number }) {
   const isMale = person.gender === "MALE";
   const isHighlighted = person.isHighlighted === true;
-  const bgColor = isHighlighted ? (isMale ? "#DBEAFE" : "#FCE7F3") : (isMale ? "#F0F9FF" : "#FFF1F2");
-  const borderColor = isHighlighted ? "#6366F1" : (isMale ? "#7DD3FC" : "#FDA4AF");
-  const accentColor = isMale ? "#0EA5E9" : "#F43F5E";
+  const bgColor = isHighlighted ? "#F5E8DC" : (isMale ? "#F0F4F8" : "#FFF1F0");
+  const borderColor = isHighlighted ? "#A0604B" : (isMale ? "#B4CBDB" : "#E8B4B4");
+  const accentColor = isMale ? "#4A7A9B" : "#C94040";
 
   const birthYear = person.birthDate
     ? new Date(person.birthDate).getFullYear()
@@ -165,7 +165,7 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
           height={NODE_H + 6}
           rx={19}
           fill="none"
-          stroke="#6366F1"
+          stroke="#A0604B"
           strokeWidth={2.5}
           opacity={0.6}
           className="animate-pulse"
@@ -207,8 +207,8 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
         y={y + NODE_H / 2 - 4}
         fontSize={13}
         fontWeight="bold"
-        fill="#111827"
-        fontFamily='"Pretendard", "Inter", sans-serif'
+        fill="#2C1810"
+        fontFamily='"Pretendard Variable", "Pretendard", "Inter", sans-serif'
       >
         {person.nameKorean}
       </text>
@@ -219,7 +219,7 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
           x={x + 55}
           y={y + NODE_H / 2 + 14}
           fontSize={10}
-          fill="#9CA3AF"
+          fill="#A89888"
         >
           {birthYear}년생
           {!person.isAlive && " (작고)"}

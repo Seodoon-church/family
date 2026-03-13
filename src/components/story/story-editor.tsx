@@ -117,7 +117,7 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="제목을 입력하세요"
-        className="w-full text-2xl font-bold text-gray-900 placeholder:text-gray-300 border-none outline-none bg-transparent"
+        className="w-full text-2xl font-bold text-foreground placeholder:text-warm-muted-light border-none outline-none bg-transparent"
         required
       />
 
@@ -132,7 +132,7 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
               className={`text-xs px-3 py-1.5 rounded-full transition-all duration-150 ${
                 category === key
                   ? "bg-primary text-white shadow-sm"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  : "bg-warm-hover text-foreground/70 hover:bg-warm-hover"
               }`}
             >
               {cat.label}
@@ -140,18 +140,18 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
           ))}
         </div>
         <div className="flex items-center gap-2 ml-auto">
-          <label className="text-xs text-gray-400">이야기 시점</label>
+          <label className="text-xs text-muted">이야기 시점</label>
           <input
             type="date"
             value={storyDate}
             onChange={(e) => setStoryDate(e.target.value)}
-            className="text-xs px-2.5 py-1.5 rounded-lg border border-gray-200 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="text-xs px-2.5 py-1.5 rounded-lg border border-border text-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
         </div>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-gray-100" />
+      <div className="border-t border-border" />
 
       {/* Content */}
       <div
@@ -161,7 +161,7 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full min-h-[200px] text-base text-gray-700 placeholder:text-gray-300 border-none outline-none bg-transparent resize-y leading-relaxed"
+          className="w-full min-h-[200px] text-base text-foreground/80 placeholder:text-warm-muted-light border-none outline-none bg-transparent resize-y leading-relaxed font-story"
           placeholder="가족의 이야기를 자유롭게 적어보세요..."
           required
         />
@@ -171,7 +171,7 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
       {attachedMedia.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {attachedMedia.map((media, index) => (
-            <div key={index} className="relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+            <div key={index} className="relative group rounded-xl overflow-hidden border border-border bg-warm-hover">
               {media.type === "image" ? (
                 <img
                   src={media.preview}
@@ -211,7 +211,7 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
 
       {/* Error */}
       {error && (
-        <p className="text-xs text-rose-500">{error}</p>
+        <p className="text-xs text-accent-red">{error}</p>
       )}
 
       {/* Hidden file inputs */}
@@ -239,12 +239,12 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
       />
 
       {/* Submit Bar */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+      <div className="flex items-center justify-between pt-4 border-t border-border">
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => imageInputRef.current?.click()}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-primary"
+            className="p-2 rounded-lg hover:bg-warm-hover transition-colors text-muted hover:text-primary"
             title="사진 첨부"
           >
             <ImagePlus className="w-5 h-5" />
@@ -252,13 +252,13 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
           <button
             type="button"
             onClick={() => videoInputRef.current?.click()}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-primary"
+            className="p-2 rounded-lg hover:bg-warm-hover transition-colors text-muted hover:text-primary"
             title="영상 첨부"
           >
             <Video className="w-5 h-5" />
           </button>
           {attachedMedia.length > 0 && (
-            <span className="text-xs text-gray-400 ml-1">
+            <span className="text-xs text-muted ml-1">
               {attachedMedia.length}개 파일 첨부됨
             </span>
           )}

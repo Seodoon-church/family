@@ -15,17 +15,17 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled}
         className={cn(
-          "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
+          "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
           {
-            "bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow-md":
+            "bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow-md hover:shadow-primary/10":
               variant === "primary",
-            "bg-gray-100 text-gray-700 hover:bg-gray-200":
+            "bg-warm-hover text-foreground hover:bg-warm-subtle/40":
               variant === "secondary",
-            "border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300":
+            "border border-border text-foreground/80 hover:bg-warm-hover hover:border-warm-subtle hover:text-foreground":
               variant === "outline",
-            "text-gray-600 hover:bg-gray-100 hover:text-gray-900":
+            "text-foreground/70 hover:bg-warm-hover hover:text-foreground":
               variant === "ghost",
-            "bg-accent-red text-white hover:bg-red-600 shadow-sm":
+            "bg-accent-red text-white hover:bg-accent-red/90 shadow-sm":
               variant === "danger",
           },
           {

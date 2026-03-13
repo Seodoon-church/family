@@ -1,21 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #F9FAFB;
-  --foreground: #111827;
-  --primary: #6366F1;
-  --primary-light: #EEF2FF;
-  --primary-dark: #4338CA;
-  --accent-red: #F43F5E;
-  --accent-blue: #0EA5E9;
-  --accent-green: #10B981;
-  --accent-gold: #F59E0B;
-  --accent-cream: #F9FAFB;
-  --border: #E5E7EB;
-  --muted: #6B7280;
-  --card: #FFFFFF;
-  --card-foreground: #111827;
+  --background: #FAF7F2;
+  --foreground: #2C1810;
+  --primary: #A0604B;
+  --primary-light: #FBF5F0;
+  --primary-dark: #73392D;
+  --accent-red: #C94040;
+  --accent-blue: #4A7A9B;
+  --accent-green: #5E8A5E;
+  --accent-gold: #C8920A;
+  --accent-cream: #FAF7F2;
+  --border: #E8DFD4;
+  --muted: #8C7B6B;
+  --card: #FFFCF8;
+  --card-foreground: #2C1810;
+  --warm-hover: #F5EDE3;
+  --warm-subtle: #D4C8BA;
+  --warm-muted-light: #A89888;
 }
 
 @theme inline {
@@ -33,8 +37,12 @@
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --font-heading: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-body: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --color-warm-hover: var(--warm-hover);
+  --color-warm-subtle: var(--warm-subtle);
+  --color-warm-muted-light: var(--warm-muted-light);
+  --font-heading: "Pretendard Variable", "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: "Pretendard Variable", "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-story: "Noto Serif KR", "Batang", Georgia, "Times New Roman", serif;
 }
 
 html {
@@ -53,20 +61,168 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F3F4F6;
+  background: #F3EDE5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
+  background: #D4C8BA;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: #A89888;
 }
 
 /* Selection color */
 ::selection {
-  background-color: #C7D2FE;
-  color: #312E81;
+  background-color: #EACDB5;
+  color: #4A2019;
+}
+
+/* ===== Scrapbook Design System ===== */
+
+/* Paper/linen texture */
+.paper-texture {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(200, 146, 10, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(160, 96, 75, 0.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, rgba(200, 146, 10, 0.02) 0%, transparent 50%);
+}
+
+.linen-texture {
+  background-color: var(--background);
+  background-image:
+    linear-gradient(90deg, rgba(200, 180, 150, 0.04) 50%, transparent 50%),
+    linear-gradient(rgba(200, 180, 150, 0.04) 50%, transparent 50%);
+  background-size: 4px 4px;
+}
+
+/* Warm shadows */
+.warm-shadow {
+  box-shadow: 0 2px 8px rgba(44, 24, 16, 0.06), 0 1px 2px rgba(44, 24, 16, 0.04);
+}
+
+.warm-shadow-lg {
+  box-shadow: 0 4px 16px rgba(44, 24, 16, 0.08), 0 2px 4px rgba(44, 24, 16, 0.04);
+}
+
+/* Stamp/seal for 家 logo */
+.stamp-seal {
+  position: relative;
+  border: 3px solid #A0604B;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.stamp-seal::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid rgba(160, 96, 75, 0.4);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Notebook tab active indicator */
+.tab-notebook-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Journal entry left border */
+.journal-border {
+  border-left: 3px solid #D9A98A;
+}
+
+.journal-border:hover {
+  border-left-color: #A0604B;
+}
+
+/* Date stamp */
+.date-stamp {
+  font-family: var(--font-story);
+  color: #C8920A;
+  letter-spacing: 0.02em;
+}
+
+/* Warm divider */
+.warm-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #E8DFD4, transparent);
+}
+
+/* Chapter/generation number */
+.chapter-number {
+  font-family: var(--font-story);
+  font-weight: 600;
+  color: #A0604B;
+}
+
+/* Polaroid frames */
+.polaroid {
+  background: white;
+  padding: 8px 8px 28px 8px;
+  box-shadow:
+    0 1px 3px rgba(44, 24, 16, 0.08),
+    0 4px 12px rgba(44, 24, 16, 0.04);
+}
+
+.polaroid-tilt-1 { transform: rotate(-2deg); }
+.polaroid-tilt-2 { transform: rotate(1deg); }
+.polaroid-tilt-3 { transform: rotate(-1deg); }
+.polaroid-tilt-4 { transform: rotate(0.5deg); }
+.polaroid-tilt-1:hover,
+.polaroid-tilt-2:hover,
+.polaroid-tilt-3:hover,
+.polaroid-tilt-4:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+/* Portrait card hover */
+.portrait-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.portrait-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 8px 24px rgba(44, 24, 16, 0.1);
+}
+
+/* Deceased member filter */
+.member-deceased {
+  filter: saturate(0.4) brightness(1.05);
+}
+
+.member-deceased:hover {
+  filter: saturate(0.6) brightness(1.02);
+}
+
+/* Timeline */
+.timeline-line {
+  border-left: 2px solid #E8DFD4;
+}
+
+.timeline-dot {
+  background: #FFFCF8;
+  border: 2.5px solid #A0604B;
+}
+
+/* Bookmark tab */
+.bookmark-tab {
+  border-radius: 0 8px 8px 0;
+  padding-left: 12px;
+  padding-right: 16px;
+}
+
+/* Book spine shadow */
+.book-spine-shadow {
+  box-shadow:
+    inset 6px 0 12px -4px rgba(44, 24, 16, 0.08),
+    0 1px 3px rgba(44, 24, 16, 0.06);
 }

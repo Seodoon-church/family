@@ -27,31 +27,31 @@ const STEP_INFO: Record<WizardStep, { icon: typeof Heart; title: string; descrip
     icon: Heart,
     title: "배우자",
     description: "결혼하셨나요?",
-    color: "text-rose-500",
+    color: "text-accent-red",
   },
   father: {
     icon: Users,
     title: "아버지",
     description: "아버지 정보를 입력해주세요",
-    color: "text-sky-600",
+    color: "text-accent-blue",
   },
   mother: {
     icon: Users,
     title: "어머니",
     description: "어머니 정보를 입력해주세요",
-    color: "text-pink-500",
+    color: "text-accent-red",
   },
   siblings: {
     icon: UserPlus,
     title: "형제 / 자매",
     description: "형제나 자매가 있나요?",
-    color: "text-emerald-600",
+    color: "text-accent-green",
   },
   children: {
     icon: Baby,
     title: "자녀",
     description: "자녀가 있나요?",
-    color: "text-amber-600",
+    color: "text-accent-gold",
   },
   preview: {
     icon: TreePine,
@@ -83,7 +83,7 @@ export function TreeWizard({
             className={`h-1.5 rounded-full transition-all duration-300 ${
               i <= wizard.stepIndex
                 ? "bg-primary w-8"
-                : "bg-gray-200 w-5"
+                : "bg-warm-hover w-5"
             }`}
           />
         ))}
@@ -93,7 +93,7 @@ export function TreeWizard({
       <StepHeader step={wizard.state.currentStep} />
 
       {/* Step Content */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
         {wizard.state.currentStep === "spouse" && (
           <SpouseStep
             selfGender={selfGender}
@@ -160,11 +160,11 @@ function StepHeader({ step }: { step: WizardStep }) {
 
   return (
     <div className="text-center space-y-2">
-      <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gray-50 ${info.color}`}>
+      <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-warm-hover ${info.color}`}>
         <Icon className="w-6 h-6" />
       </div>
-      <h2 className="text-lg font-bold text-gray-900">{info.title}</h2>
-      <p className="text-sm text-gray-500">{info.description}</p>
+      <h2 className="text-lg font-bold text-foreground">{info.title}</h2>
+      <p className="text-sm text-muted">{info.description}</p>
     </div>
   );
 }
@@ -211,7 +211,7 @@ function MemberInput({
                 onChange={() => onChange({ ...value, gender: "MALE" })}
                 className="peer sr-only"
               />
-              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-gray-100 peer-checked:border-sky-400 peer-checked:bg-sky-50 transition-all">
+              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-border peer-checked:border-accent-blue peer-checked:bg-accent-blue/10 transition-all">
                 <span className="text-sm font-medium">남성</span>
               </div>
             </label>
@@ -223,7 +223,7 @@ function MemberInput({
                 onChange={() => onChange({ ...value, gender: "FEMALE" })}
                 className="peer sr-only"
               />
-              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-gray-100 peer-checked:border-rose-400 peer-checked:bg-rose-50 transition-all">
+              <div className="flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-border peer-checked:border-accent-red peer-checked:bg-accent-red/10 transition-all">
                 <span className="text-sm font-medium">여성</span>
               </div>
             </label>
@@ -267,17 +267,17 @@ function SpouseStep({
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => setIsMarried(true)}
-            className="flex flex-col items-center gap-3 p-5 rounded-xl border-2 border-gray-100 hover:border-rose-300 hover:bg-rose-50/50 transition-all"
+            className="flex flex-col items-center gap-3 p-5 rounded-xl border-2 border-border hover:border-accent-red/50 hover:bg-accent-red/5 transition-all"
           >
-            <Heart className="w-8 h-8 text-rose-400" />
-            <span className="text-sm font-semibold text-gray-900">예, 기혼입니다</span>
+            <Heart className="w-8 h-8 text-accent-red" />
+            <span className="text-sm font-semibold text-foreground">예, 기혼입니다</span>
           </button>
           <button
             onClick={() => { setIsMarried(false); onNext(); }}
-            className="flex flex-col items-center gap-3 p-5 rounded-xl border-2 border-gray-100 hover:border-gray-300 hover:bg-gray-50 transition-all"
+            className="flex flex-col items-center gap-3 p-5 rounded-xl border-2 border-border hover:border-warm-subtle hover:bg-warm-hover transition-all"
           >
-            <SkipForward className="w-8 h-8 text-gray-400" />
-            <span className="text-sm font-semibold text-gray-900">아니요, 건너뛰기</span>
+            <SkipForward className="w-8 h-8 text-muted" />
+            <span className="text-sm font-semibold text-foreground">아니요, 건너뛰기</span>
           </button>
         </div>
       </div>
@@ -430,8 +430,8 @@ function SiblingsStep({
     <div className="p-6 space-y-5">
       {/* 등록된 형제 목록 */}
       {siblingCount > 0 && (
-        <div className="bg-emerald-50 rounded-xl p-3">
-          <p className="text-sm text-emerald-700 font-medium">
+        <div className="bg-accent-green/10 rounded-xl p-3">
+          <p className="text-sm text-accent-green font-medium">
             <Check className="w-4 h-4 inline mr-1" />
             형제/자매 {siblingCount}명 등록됨
           </p>
@@ -462,11 +462,11 @@ function SiblingsStep({
               }}
               className="rounded accent-primary"
             />
-            <span className="text-sm text-gray-600">배우자도 함께 등록</span>
+            <span className="text-sm text-foreground/70">배우자도 함께 등록</span>
           </label>
 
           {hasSpouse && (
-            <div className="pl-4 border-l-2 border-rose-200 space-y-4">
+            <div className="pl-4 border-l-2 border-accent-red/30 space-y-4">
               <MemberInput
                 nameLabel="배우자 이름"
                 showGender={false}
@@ -493,10 +493,10 @@ function SiblingsStep({
         <div className="space-y-3">
           <button
             onClick={() => setShowForm(true)}
-            className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50 transition-all"
+            className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent-green/50 hover:bg-accent-green/5 transition-all"
           >
-            <Plus className="w-5 h-5 text-emerald-500" />
-            <span className="text-sm font-medium text-gray-600">형제/자매 추가</span>
+            <Plus className="w-5 h-5 text-accent-green" />
+            <span className="text-sm font-medium text-foreground/70">형제/자매 추가</span>
           </button>
 
           <div className="flex gap-3">
@@ -550,8 +550,8 @@ function ChildrenStep({
   return (
     <div className="p-6 space-y-5">
       {childCount > 0 && (
-        <div className="bg-amber-50 rounded-xl p-3">
-          <p className="text-sm text-amber-700 font-medium">
+        <div className="bg-accent-gold/10 rounded-xl p-3">
+          <p className="text-sm text-accent-gold font-medium">
             <Check className="w-4 h-4 inline mr-1" />
             자녀 {childCount}명 등록됨
           </p>
@@ -582,10 +582,10 @@ function ChildrenStep({
         <div className="space-y-3">
           <button
             onClick={() => setShowForm(true)}
-            className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-amber-300 hover:bg-amber-50/50 transition-all"
+            className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-border hover:border-accent-gold/50 hover:bg-accent-gold/5 transition-all"
           >
-            <Plus className="w-5 h-5 text-amber-500" />
-            <span className="text-sm font-medium text-gray-600">자녀 추가</span>
+            <Plus className="w-5 h-5 text-accent-gold" />
+            <span className="text-sm font-medium text-foreground/70">자녀 추가</span>
           </button>
 
           <div className="flex gap-3">
@@ -629,18 +629,18 @@ function PreviewStep({
           <ModernTree data={treeData} />
         ) : (
           <div className="flex items-center justify-center p-10">
-            <p className="text-sm text-gray-400">가계도 데이터를 불러오는 중...</p>
+            <p className="text-sm text-muted">가계도 데이터를 불러오는 중...</p>
           </div>
         )}
       </div>
 
       {/* Summary */}
       <div className="px-6 pb-6 space-y-4">
-        <div className="bg-emerald-50 rounded-xl p-4 text-center">
-          <p className="text-sm text-emerald-700 font-medium">
+        <div className="bg-accent-green/10 rounded-xl p-4 text-center">
+          <p className="text-sm text-accent-green font-medium">
             총 {members.length}명의 가족이 등록되었습니다
           </p>
-          <p className="text-xs text-emerald-500 mt-1">
+          <p className="text-xs text-accent-green mt-1">
             나중에 구성원 관리에서 상세 정보를 보완할 수 있습니다
           </p>
         </div>

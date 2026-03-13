@@ -37,36 +37,47 @@ export default function GalleryPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">미디어 갤러리</h1>
-        <Button size="sm" onClick={() => setShowUpload(true)}>
-          <Upload className="w-4 h-4 mr-1" />
-          업로드
-        </Button>
+      <div>
+        <div className="flex items-center justify-between">
+          <h1
+            className="text-xl font-semibold text-foreground"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            갤러리
+          </h1>
+          <Button size="sm" onClick={() => setShowUpload(true)}>
+            <Upload className="w-4 h-4 mr-1" />
+            추억 추가하기
+          </Button>
+        </div>
+        <div className="warm-divider mt-3" />
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 border-b border-border pb-2">
         {[
           { value: "ALL" as const, label: "전체", icon: null },
           { value: "PHOTO" as const, label: "사진", icon: Image },
           { value: "VIDEO" as const, label: "영상", icon: Video },
           { value: "AUDIO" as const, label: "음성", icon: Mic },
         ].map(({ value, label, icon: Icon }) => (
-          <Button
+          <button
             key={value}
-            variant={filter === value ? "primary" : "outline"}
-            size="sm"
             onClick={() => setFilter(value)}
+            className={`flex items-center gap-1 text-sm px-3 py-1.5 transition-colors ${
+              filter === value
+                ? "text-primary border-b-2 border-primary font-semibold"
+                : "text-muted hover:text-foreground"
+            }`}
           >
-            {Icon && <Icon className="w-3 h-3 mr-1" />}
+            {Icon && <Icon className="w-3 h-3" />}
             {label}
             {value !== "ALL" && (
               <span className="ml-1 text-xs">
                 ({mediaList.filter((m) => m.type === value).length})
               </span>
             )}
-          </Button>
+          </button>
         ))}
       </div>
 

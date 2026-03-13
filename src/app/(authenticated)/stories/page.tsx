@@ -26,14 +26,22 @@ export default function StoriesPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">가족 이야기</h1>
-        <a href="/stories/new">
-          <Button size="sm">
-            <PenSquare className="w-4 h-4 mr-1" />
-            글쓰기
-          </Button>
-        </a>
+      <div>
+        <div className="flex items-center justify-between">
+          <h1
+            className="text-xl font-semibold text-foreground"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            가족 이야기
+          </h1>
+          <a href="/stories/new">
+            <Button size="sm">
+              <PenSquare className="w-4 h-4 mr-1" />
+              글쓰기
+            </Button>
+          </a>
+        </div>
+        <div className="warm-divider mt-3" />
       </div>
 
       {/* Category Filter */}
@@ -43,7 +51,7 @@ export default function StoriesPage() {
           className={`text-xs px-3 py-1.5 rounded-full transition-all duration-150 ${
             !selectedCategory
               ? "bg-primary text-white shadow-sm"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              : "bg-card text-muted border border-border hover:bg-primary-light"
           }`}
         >
           전체
@@ -55,7 +63,7 @@ export default function StoriesPage() {
             className={`text-xs px-3 py-1.5 rounded-full transition-all duration-150 ${
               selectedCategory === key
                 ? "bg-primary text-white shadow-sm"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                : "bg-card text-muted border border-border hover:bg-primary-light"
             }`}
           >
             {cat.label}
@@ -66,11 +74,16 @@ export default function StoriesPage() {
       {/* Stories List */}
       {stories.length === 0 ? (
         <div className="text-center py-16">
-          <div className="w-16 h-16 rounded-2xl bg-gray-100 mx-auto mb-4 flex items-center justify-center">
-            <BookOpen className="w-8 h-8 text-gray-300" />
+          <div className="w-16 h-16 rounded-2xl bg-primary-light mx-auto mb-4 flex items-center justify-center">
+            <BookOpen className="w-8 h-8 text-primary/40" />
           </div>
-          <p className="font-semibold text-gray-900 mb-1">아직 작성된 이야기가 없습니다</p>
-          <p className="text-sm text-gray-500 mb-5">
+          <p
+            className="font-semibold text-foreground mb-1"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            아직 펼쳐지지 않은 이야기
+          </p>
+          <p className="text-sm text-muted mb-5">
             가족의 추억, 전통, 레시피 등을 기록해보세요.
           </p>
           <a href="/stories/new">
@@ -81,7 +94,7 @@ export default function StoriesPage() {
           </a>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="bg-card rounded-2xl border border-border paper-texture p-5 space-y-3">
           {stories.map((story) => (
             <StoryCard key={story.id} story={story} />
           ))}

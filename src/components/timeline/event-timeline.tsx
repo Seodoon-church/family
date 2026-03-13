@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
 import { EVENT_CATEGORIES } from "@/lib/constants";
 import type { FamilyEvent } from "@/hooks/use-events";
@@ -30,8 +29,13 @@ export function EventTimeline({ events }: EventTimelineProps) {
   if (events.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="font-semibold text-lg mb-2">등록된 이벤트가 없습니다</p>
-        <p className="text-sm text-gray-500">
+        <p
+          className="font-semibold text-lg text-foreground mb-2"
+          style={{ fontFamily: "var(--font-story)" }}
+        >
+          아직 기록된 순간이 없습니다
+        </p>
+        <p className="text-sm text-muted">
           출생, 결혼, 졸업 등 가족의 중요한 순간을 기록하세요.
         </p>
       </div>
@@ -56,11 +60,13 @@ export function EventTimeline({ events }: EventTimelineProps) {
     <div className="space-y-8">
       {sortedYears.map((year) => (
         <div key={year}>
-          <h2 className="font-semibold text-xl text-primary mb-4 sticky top-0 bg-background py-1 z-10">
-            {year}년
+          <h2 className="mb-4 sticky top-0 bg-background py-1 z-10 flex items-center gap-2">
+            <span className="chapter-number text-3xl">{year}</span>
+            <span className="text-sm font-semibold text-foreground">년</span>
+            <div className="flex-1 h-px bg-border ml-2" />
           </h2>
 
-          <div className="relative pl-8 border-l-2 border-gray-200 space-y-4">
+          <div className="relative pl-8 border-l-2 border-[#E8DFD4] space-y-4">
             {grouped[year]
               .sort((a, b) => {
                 const dateA = a.eventDate?.toDate?.()?.getTime() || 0;
@@ -78,30 +84,30 @@ export function EventTimeline({ events }: EventTimelineProps) {
                       <Icon className="w-3 h-3 text-primary" />
                     </div>
 
-                    <Card className="p-4">
+                    <div className="bg-card rounded-xl border border-border warm-shadow p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-bold text-sm">
+                          <h3 className="font-bold text-sm text-foreground">
                             {event.title}
                           </h3>
-                          <p className="text-xs text-gray-500 mt-0.5">
+                          <p className="date-stamp text-xs mt-0.5">
                             {event.eventDate?.toDate && formatDate(event.eventDate.toDate())}
-                            {cat && ` · ${cat.label}`}
+                            {cat && <span className="text-muted ml-1">· {cat.label}</span>}
                           </p>
                           {event.description && (
-                            <p className="text-sm text-gray-900 mt-2">
+                            <p className="text-sm text-foreground/80 mt-2">
                               {event.description}
                             </p>
                           )}
                           {event.location && (
-                            <p className="text-xs text-gray-500 mt-1">{event.location}</p>
+                            <p className="text-xs text-muted mt-1">{event.location}</p>
                           )}
                           {event.participants?.length > 0 && (
                             <div className="flex gap-1 mt-2">
                               {event.participants.map((p) => (
                                 <span
                                   key={p.id}
-                                  className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10"
+                                  className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary-light text-primary border border-primary/10"
                                 >
                                   {p.name}
                                 </span>
@@ -110,10 +116,10 @@ export function EventTimeline({ events }: EventTimelineProps) {
                           )}
                         </div>
                         {event.isRecurring && (
-                          <span title="매년 반복"><RotateCcw className="w-3 h-3 text-gray-500 shrink-0" /></span>
+                          <span title="매년 반복"><RotateCcw className="w-3 h-3 text-muted shrink-0" /></span>
                         )}
                       </div>
-                    </Card>
+                    </div>
                   </div>
                 );
               })}

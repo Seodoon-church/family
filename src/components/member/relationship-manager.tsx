@@ -61,14 +61,14 @@ export function RelationshipManager({
       </div>
 
       {showForm && (
-        <div className="bg-primary/5 rounded-lg p-4 space-y-3 border border-gray-200">
+        <div className="bg-primary/5 rounded-lg p-4 space-y-3 border border-border">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-gray-500 block mb-1">기준 (부모/배우자)</label>
+              <label className="text-xs font-medium text-muted block mb-1">기준 (부모/배우자)</label>
               <select
                 value={fromId}
                 onChange={(e) => setFromId(e.target.value)}
-                className="w-full h-9 rounded-lg border border-gray-200 bg-white px-2 text-sm"
+                className="w-full h-9 rounded-lg border border-border bg-card px-2 text-sm"
               >
                 <option value="">선택...</option>
                 {members.map((m) => (
@@ -79,11 +79,11 @@ export function RelationshipManager({
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-500 block mb-1">대상 (자녀/배우자)</label>
+              <label className="text-xs font-medium text-muted block mb-1">대상 (자녀/배우자)</label>
               <select
                 value={toId}
                 onChange={(e) => setToId(e.target.value)}
-                className="w-full h-9 rounded-lg border border-gray-200 bg-white px-2 text-sm"
+                className="w-full h-9 rounded-lg border border-border bg-card px-2 text-sm"
               >
                 <option value="">선택...</option>
                 {members.filter((m) => m.id !== fromId).map((m) => (
@@ -95,7 +95,7 @@ export function RelationshipManager({
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 block mb-1">관계 유형</label>
+            <label className="text-xs font-medium text-muted block mb-1">관계 유형</label>
             <div className="flex gap-3">
               <label className="flex items-center gap-1.5 cursor-pointer text-sm">
                 <input
@@ -130,12 +130,12 @@ export function RelationshipManager({
 
       <div className="space-y-1">
         {relationships.length === 0 ? (
-          <p className="text-sm text-gray-500 py-2">등록된 관계가 없습니다.</p>
+          <p className="text-sm text-muted py-2">등록된 관계가 없습니다.</p>
         ) : (
           relationships.map((rel) => (
             <div
               key={rel.id}
-              className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-gray-50 text-sm"
+              className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-warm-hover text-sm"
             >
               <span>{getRelLabel(rel)}</span>
               <button
@@ -143,7 +143,7 @@ export function RelationshipManager({
                 className="p-1 hover:bg-primary/10 rounded"
                 title="관계 삭제"
               >
-                <X className="w-3 h-3 text-gray-500" />
+                <X className="w-3 h-3 text-muted" />
               </button>
             </div>
           ))

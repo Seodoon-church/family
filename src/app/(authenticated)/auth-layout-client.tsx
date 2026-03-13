@@ -44,7 +44,7 @@ export function AuthLayoutClient({
   // Setup page: show without sidebar/header (clean layout)
   if (isSetupPage) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent-blue/5">
+      <div className="min-h-screen bg-background">
         <div className="px-4 py-6">
           {children}
         </div>

@@ -61,26 +61,34 @@ export default function MembersPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">가족 구성원</h1>
-        {isAdmin && (
-          <Button size="sm" onClick={() => setShowForm(true)}>
-            <UserPlus className="w-4 h-4 mr-1" />
-            구성원 추가
-          </Button>
-        )}
+      <div>
+        <div className="flex items-center justify-between">
+          <h1
+            className="text-xl font-semibold text-foreground"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            가족 구성원
+          </h1>
+          {isAdmin && (
+            <Button size="sm" onClick={() => setShowForm(true)}>
+              <UserPlus className="w-4 h-4 mr-1" />
+              구성원 추가
+            </Button>
+          )}
+        </div>
+        <div className="warm-divider mt-3" />
       </div>
 
       {members.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm min-h-[300px] flex items-center justify-center">
+        <div className="bg-card rounded-2xl border border-border warm-shadow min-h-[300px] flex items-center justify-center">
           <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-2xl bg-gray-100 mx-auto flex items-center justify-center">
-              <Users className="w-8 h-8 text-gray-300" />
+            <div className="w-16 h-16 rounded-2xl bg-primary-light mx-auto flex items-center justify-center">
+              <Users className="w-8 h-8 text-primary/40" />
             </div>
-            <p className="font-semibold text-gray-900">
+            <p className="font-semibold text-foreground">
               아직 등록된 구성원이 없습니다
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted">
               가족 구성원을 추가하여 가계도를 만들어보세요.
             </p>
             {isAdmin && (
@@ -98,11 +106,12 @@ export default function MembersPage() {
             .sort((a, b) => Number(a) - Number(b))
             .map((gen) => (
               <div key={gen}>
-                <h2 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center text-xs">{Number(gen) + 1}</span>
-                  세대
+                <h2 className="mb-3 flex items-center gap-2">
+                  <span className="chapter-number text-3xl">{Number(gen) + 1}</span>
+                  <span className="text-sm font-semibold text-foreground">세대</span>
+                  <div className="flex-1 h-px bg-border ml-2" />
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                   {generations[Number(gen)]
                     .sort((a, b) => a.birthOrder - b.birthOrder)
                     .map((member) => (

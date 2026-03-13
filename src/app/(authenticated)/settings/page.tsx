@@ -124,7 +124,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <h1 className="text-xl font-semibold text-gray-900">설정</h1>
+      <h1 className="text-xl font-semibold text-foreground">설정</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* My Account */}
@@ -145,13 +145,13 @@ export default function SettingsPage() {
                 size="lg"
               />
               <div>
-                <p className="font-semibold text-gray-900">{userProfile?.displayName}</p>
-                <p className="text-sm text-gray-500">{userProfile?.email}</p>
+                <p className="font-semibold text-foreground">{userProfile?.displayName}</p>
+                <p className="text-sm text-muted">{userProfile?.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <Shield className="w-4 h-4 text-amber-500" />
-              <span className="text-gray-600">{isAdmin ? "관리자" : "구성원"}</span>
+              <Shield className="w-4 h-4 text-accent-gold" />
+              <span className="text-foreground/70">{isAdmin ? "관리자" : "구성원"}</span>
             </div>
           </CardContent>
         </Card>
@@ -160,8 +160,8 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-                <Settings className="w-4 h-4 text-amber-600" />
+              <div className="w-8 h-8 rounded-lg bg-accent-gold/10 flex items-center justify-center">
+                <Settings className="w-4 h-4 text-accent-gold" />
               </div>
               비밀번호 변경
             </CardTitle>
@@ -184,7 +184,7 @@ export default function SettingsPage() {
               placeholder="새 비밀번호 (6자 이상)"
             />
             {passwordMsg && (
-              <p className={`text-xs ${passwordMsg.includes("변경") ? "text-emerald-600" : "text-rose-600"}`}>
+              <p className={`text-xs ${passwordMsg.includes("변경") ? "text-accent-green" : "text-accent-red"}`}>
                 {passwordMsg}
               </p>
             )}
@@ -203,24 +203,24 @@ export default function SettingsPage() {
           <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                  <KeyRound className="w-4 h-4 text-emerald-600" />
+                <div className="w-8 h-8 rounded-lg bg-accent-green/10 flex items-center justify-center">
+                  <KeyRound className="w-4 h-4 text-accent-green" />
                 </div>
                 가족 초대코드
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
-                <div className="flex-1 bg-gray-50 rounded-xl p-4 text-center">
-                  <p className="text-xs text-gray-400 mb-1">초대코드</p>
+                <div className="flex-1 bg-warm-hover rounded-xl p-4 text-center">
+                  <p className="text-xs text-muted mb-1">초대코드</p>
                   <p className="text-3xl font-mono font-bold text-primary tracking-[0.3em]">
                     {family.inviteCode}
                   </p>
-                  <p className="text-[11px] text-gray-400 mt-2">이 코드를 가족에게 공유하세요</p>
+                  <p className="text-[11px] text-muted mt-2">이 코드를 가족에게 공유하세요</p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <Button size="sm" variant="outline" onClick={handleCopyCode}>
-                    {codeCopied ? <Check className="w-4 h-4 mr-1 text-emerald-500" /> : <Copy className="w-4 h-4 mr-1" />}
+                    {codeCopied ? <Check className="w-4 h-4 mr-1 text-accent-green" /> : <Copy className="w-4 h-4 mr-1" />}
                     {codeCopied ? "복사됨" : "복사"}
                   </Button>
                   <Button size="sm" variant="outline" onClick={handleRegenerateCode} disabled={regenerating}>
@@ -238,14 +238,14 @@ export default function SettingsPage() {
           <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
-                  <BookOpen className="w-4 h-4 text-violet-600" />
+                <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-primary" />
                 </div>
                 족보 정보
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-muted">
                 성씨와 본관, 기준 세대의 대손을 입력하면 다른 세대의 대손이 자동 계산됩니다.
               </p>
               <div className="grid grid-cols-3 gap-3">
@@ -273,11 +273,11 @@ export default function SettingsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-900 mb-1 block">기준 세대 (나의 세대)</label>
+                  <label className="text-sm font-medium text-foreground mb-1 block">기준 세대 (나의 세대)</label>
                   <select
                     value={refGeneration}
                     onChange={(e) => setRefGeneration(Number(e.target.value))}
-                    className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full h-10 rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     {[0, 1, 2, 3, 4, 5].map((g) => (
                       <option key={g} value={g}>{g + 1}세대</option>
@@ -295,13 +295,13 @@ export default function SettingsPage() {
                 />
               </div>
               {refGenCount > 0 && (
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs font-medium text-gray-500 mb-2">자동 계산 미리보기</p>
+                <div className="bg-warm-hover rounded-xl p-3">
+                  <p className="text-xs font-medium text-muted mb-2">자동 계산 미리보기</p>
                   <div className="flex flex-wrap gap-2">
                     {[0, 1, 2, 3, 4, 5].map((g) => {
                       const count = refGenCount + (g - refGeneration);
                       return (
-                        <span key={g} className={`text-xs px-2.5 py-1 rounded-lg ${g === refGeneration ? "bg-primary text-white" : "bg-white border border-gray-200 text-gray-600"}`}>
+                        <span key={g} className={`text-xs px-2.5 py-1 rounded-lg ${g === refGeneration ? "bg-primary text-white" : "bg-card border border-border text-foreground/70"}`}>
                           {g + 1}세대 = {count > 0 ? `${count}대손` : "-"}
                         </span>
                       );
@@ -314,7 +314,7 @@ export default function SettingsPage() {
                   {clanSaving ? "저장 중..." : "저장"}
                 </Button>
                 {clanMsg && (
-                  <p className={`text-xs ${clanMsg.includes("저장되") ? "text-emerald-600" : "text-rose-600"}`}>
+                  <p className={`text-xs ${clanMsg.includes("저장되") ? "text-accent-green" : "text-accent-red"}`}>
                     {clanMsg}
                   </p>
                 )}
@@ -328,16 +328,16 @@ export default function SettingsPage() {
           <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-sky-600" />
+                <div className="w-8 h-8 rounded-lg bg-accent-blue/10 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-accent-blue" />
                 </div>
                 가족 관리
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">
-                  등록된 구성원: <span className="font-bold text-gray-900">{members.length}명</span>
+                <p className="text-sm text-muted">
+                  등록된 구성원: <span className="font-bold text-foreground">{members.length}명</span>
                 </p>
                 <Button size="sm" onClick={() => setShowMemberForm(true)}>
                   <UserPlus className="w-4 h-4 mr-1" />
@@ -347,11 +347,11 @@ export default function SettingsPage() {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {members.map((m) => (
-                  <div key={m.id} className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50">
+                  <div key={m.id} className="flex items-center gap-2 p-2.5 rounded-xl bg-warm-hover">
                     <Avatar name={m.nameKorean} gender={m.gender} size="sm" />
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{m.nameKorean}</p>
-                      <p className="text-[10px] text-gray-400">{m.generation + 1}세대</p>
+                      <p className="text-sm font-medium text-foreground truncate">{m.nameKorean}</p>
+                      <p className="text-[10px] text-muted">{m.generation + 1}세대</p>
                     </div>
                   </div>
                 ))}

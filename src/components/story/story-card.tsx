@@ -16,45 +16,51 @@ export function StoryCard({ story }: StoryCardProps) {
 
   return (
     <a href={`/stories/${story.id}`}>
-      <article className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 p-5 cursor-pointer group">
+      <article className="bg-card rounded-xl journal-border hover:bg-primary-light/30 transition-all duration-200 p-5 cursor-pointer group">
         <div className="flex items-start gap-3">
           <Avatar name={story.authorName} size="md" />
           <div className="flex-1 min-w-0">
             {/* Author Row */}
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-semibold text-gray-900">{story.authorName}</span>
-              <span className="text-xs text-gray-400">
+              <span className="text-sm font-semibold text-foreground">{story.authorName}</span>
+              <span className="date-stamp text-xs">
                 {story.createdAt?.toDate && getRelativeTime(story.createdAt.toDate())}
               </span>
-              {story.isPinned && <Pin className="w-3 h-3 text-amber-500" />}
+              {story.isPinned && <Pin className="w-3 h-3 text-accent-gold" />}
             </div>
 
             {/* Title */}
-            <h3 className="font-bold text-gray-900 mb-1.5 line-clamp-1 group-hover:text-primary transition-colors">
+            <h3
+              className="font-bold text-foreground mb-1.5 line-clamp-1 group-hover:text-primary transition-colors"
+              style={{ fontFamily: "var(--font-story)" }}
+            >
               {story.title}
             </h3>
 
             {/* Excerpt */}
-            <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
+            <p
+              className="text-sm text-muted line-clamp-2 leading-relaxed"
+              style={{ fontFamily: "var(--font-story)" }}
+            >
               {story.excerpt || story.content.substring(0, 100)}
             </p>
 
             {/* Footer */}
             <div className="flex items-center gap-3 mt-3">
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-light text-primary border border-primary/10 font-medium">
                 {category?.label || story.category}
               </span>
               {story.mediaUrls?.length > 0 && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-muted">
                   미디어 {story.mediaUrls.length}개
                 </span>
               )}
-              <span className="flex items-center gap-1 text-xs text-gray-400">
+              <span className="flex items-center gap-1 text-xs text-muted">
                 <MessageCircle className="w-3.5 h-3.5" />
                 {story.commentCount}
               </span>
               {story.mentionedMembers?.length > 0 && (
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-muted">
                   {story.mentionedMembers.map((m) => m.name).join(", ")}
                 </span>
               )}
@@ -66,7 +72,7 @@ export function StoryCard({ story }: StoryCardProps) {
             <img
               src={story.mediaUrls[0].url}
               alt=""
-              className="w-20 h-20 rounded-xl object-cover shrink-0"
+              className="w-20 h-20 rounded-xl object-cover shrink-0 border border-border"
             />
           )}
         </div>

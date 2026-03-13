@@ -42,7 +42,7 @@ export function FamilyTree() {
       <div className="flex items-center justify-center min-h-[500px]">
         <div className="text-center space-y-3">
           <p className="font-semibold text-lg">가족 구성원을 먼저 등록해주세요</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted">
             구성원과 관계를 등록하면 가계도가 자동으로 생성됩니다.
           </p>
         </div>
@@ -53,7 +53,7 @@ export function FamilyTree() {
   return (
     <div className="flex flex-col h-full">
       {/* Controls */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-card">
+      <div className="flex items-center justify-between p-3 border-b border-border bg-card">
         <div className="flex items-center gap-2">
           <Button
             variant={viewMode === "modern" ? "primary" : "outline"}
@@ -75,7 +75,7 @@ export function FamilyTree() {
           {/* 내 중심 보기 토글 */}
           {userProfile?.memberId && (
             <>
-              <div className="w-px h-5 bg-gray-200 mx-1" />
+              <div className="w-px h-5 bg-warm-hover mx-1" />
               <Button
                 variant={showMyView ? "primary" : "outline"}
                 size="sm"

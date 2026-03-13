@@ -51,8 +51,8 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-card rounded-2xl border border-gray-200 shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-5 border-b border-gray-200">
+      <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b border-border">
           <h2 className="font-semibold text-lg">이벤트 추가</h2>
           <button onClick={onCancel} className="p-1 rounded-lg hover:bg-primary/10">
             <X className="w-5 h-5" />
@@ -70,11 +70,11 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
           />
 
           <div>
-            <label className="text-sm font-medium text-gray-900 mb-1 block">카테고리</label>
+            <label className="text-sm font-medium text-foreground mb-1 block">카테고리</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {Object.entries(EVENT_CATEGORIES).map(([key, cat]) => (
                 <option key={key} value={key}>{cat.label}</option>
@@ -100,11 +100,11 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
           />
 
           <div>
-            <label className="text-sm font-medium text-gray-900 mb-1 block">설명</label>
+            <label className="text-sm font-medium text-foreground mb-1 block">설명</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm min-h-[60px] focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm min-h-[60px] focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="이벤트 설명 (선택)"
             />
           </div>

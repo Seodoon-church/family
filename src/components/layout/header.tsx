@@ -23,26 +23,26 @@ export function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
-      <div className="flex h-14 items-center px-4 gap-3">
+    <header className="sticky top-0 z-40 bg-card border-b border-border">
+      <div className="flex h-16 items-center px-4 gap-3">
         {/* Logo */}
         <button
           onClick={onMenuClick}
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors mr-1"
+          className="md:hidden p-2 rounded-lg hover:bg-warm-hover transition-colors mr-1"
           aria-label="메뉴"
         >
-          <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
 
         <a href="/dashboard" className="flex items-center gap-2 shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-white font-bold text-sm">家</span>
+          <div className="w-8 h-8 rounded-lg bg-primary shadow-sm shadow-primary/20 flex items-center justify-center">
+            <span className="text-white font-bold text-sm font-story">家</span>
           </div>
           <div className="hidden lg:block">
-            <p className="font-bold text-sm text-gray-900 leading-tight">우리家 이야기</p>
-            <p className="text-[10px] text-gray-400 leading-tight">가족 기록 플랫폼</p>
+            <p className="font-bold text-sm text-foreground leading-tight font-story" style={{ fontFamily: "var(--font-story)" }}>우리家 이야기</p>
+            <p className="text-[10px] text-muted leading-tight">가족 기록 플랫폼</p>
           </div>
         </a>
 
@@ -57,8 +57,8 @@ export function Header({ onMenuClick }: HeaderProps) {
                 className={cn(
                   "px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all",
                   isActive
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    ? "text-primary bg-background border-b-2 border-primary font-semibold"
+                    : "text-muted hover:bg-warm-hover hover:text-foreground"
                 )}
               >
                 {tab.label}
@@ -72,19 +72,19 @@ export function Header({ onMenuClick }: HeaderProps) {
         {user && (
           <div className="flex items-center gap-1.5">
             {/* Search */}
-            <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden sm:flex items-center gap-2 text-gray-500 text-sm">
+            <button className="p-2 rounded-lg hover:bg-warm-hover transition-colors hidden sm:flex items-center gap-2 text-muted text-sm">
               <Search className="w-4 h-4" />
-              <span className="hidden lg:inline text-gray-400">검색</span>
-              <kbd className="hidden lg:inline text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-400 font-mono">⌘K</kbd>
+              <span className="hidden lg:inline text-muted">검색</span>
+              <kbd className="hidden lg:inline text-[10px] px-1.5 py-0.5 rounded bg-warm-hover text-muted font-mono">⌘K</kbd>
             </button>
 
             {/* Notifications */}
-            <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
-              <Bell className="w-4 h-4 text-gray-500" />
+            <button className="p-2 rounded-lg hover:bg-warm-hover transition-colors relative">
+              <Bell className="w-4 h-4 text-muted" />
             </button>
 
             {/* Divider */}
-            <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block" />
+            <div className="w-px h-6 bg-border mx-1 hidden sm:block" />
 
             {/* User Profile */}
             {userProfile ? (
@@ -95,28 +95,28 @@ export function Header({ onMenuClick }: HeaderProps) {
                   size="sm"
                 />
                 <div className="hidden sm:block text-right">
-                  <p className="text-sm font-medium text-gray-900 leading-tight">{userProfile.displayName}</p>
-                  <p className="text-[10px] text-gray-400 leading-tight">
+                  <p className="text-sm font-medium text-foreground leading-tight">{userProfile.displayName}</p>
+                  <p className="text-[10px] text-muted leading-tight">
                     {userProfile.role === "ADMIN" ? "관리자" : "구성원"}
                   </p>
                 </div>
                 <button
                   onClick={signOut}
-                  className="p-1 rounded hover:bg-gray-100 transition-colors"
+                  className="p-1 rounded hover:bg-warm-hover transition-colors"
                   title="로그아웃"
                 >
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                  <ChevronDown className="w-3.5 h-3.5 text-muted" />
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">{user.email}</span>
+                <span className="text-sm text-muted">{user.email}</span>
                 <button
                   onClick={signOut}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-lg hover:bg-warm-hover transition-colors"
                   title="로그아웃"
                 >
-                  <LogOut className="w-4 h-4 text-gray-400" />
+                  <LogOut className="w-4 h-4 text-muted" />
                 </button>
               </div>
             )}

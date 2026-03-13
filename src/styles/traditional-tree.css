@@ -1,5 +1,5 @@
 .traditional-tree-container {
-  background-color: #F9FAFB;
+  background-color: #FAF7F2;
   min-height: 100%;
   position: relative;
   overflow: auto;
@@ -15,71 +15,71 @@
 }
 
 .traditional-node rect {
-  stroke: #D1D5DB;
+  stroke: #D4C8BA;
   stroke-width: 1;
-  fill: #FFFFFF;
+  fill: #FFFCF8;
   rx: 6;
 }
 
 .traditional-node.male rect {
-  fill: #F0F9FF;
-  stroke: #BAE6FD;
+  fill: #F0F4F8;
+  stroke: #B4CBDB;
 }
 
 .traditional-node.female rect {
-  fill: #FFF1F2;
-  stroke: #FECDD3;
+  fill: #FFF1F0;
+  stroke: #E8B4B4;
 }
 
 .traditional-node.deceased rect {
-  fill: #F3F4F6;
+  fill: #F3EDE5;
   stroke-dasharray: 4 2;
-  stroke: #D1D5DB;
+  stroke: #D4C8BA;
 }
 
 .traditional-node text.name-hanja {
-  font-family: "Pretendard", "Inter", sans-serif;
+  font-family: "Pretendard Variable", "Pretendard", "Inter", sans-serif;
   font-size: 16px;
-  fill: #111827;
+  fill: #2C1810;
   font-weight: 700;
 }
 
 .traditional-node text.name-korean {
-  font-family: "Pretendard", "Inter", sans-serif;
+  font-family: "Pretendard Variable", "Pretendard", "Inter", sans-serif;
   font-size: 11px;
-  fill: #6B7280;
+  fill: #8C7B6B;
 }
 
 .traditional-node text.birth-year {
-  font-family: "Pretendard", "Inter", sans-serif;
+  font-family: "Pretendard Variable", "Pretendard", "Inter", sans-serif;
   font-size: 9px;
-  fill: #9CA3AF;
+  fill: #A89888;
 }
 
 .traditional-link {
   fill: none;
-  stroke: #D1D5DB;
+  stroke: #D4C8BA;
   stroke-width: 1.5;
 }
 
 .traditional-spouse-link {
   fill: none;
-  stroke: #F43F5E;
+  stroke: #C94040;
   stroke-width: 1;
   stroke-dasharray: 6 3;
 }
 
 .generation-label {
-  font-family: "Pretendard", "Inter", sans-serif;
+  font-family: "Pretendard Variable", "Pretendard", "Inter", sans-serif;
   font-size: 13px;
-  fill: #6366F1;
+  fill: #A0604B;
   font-weight: 600;
 }
 
 .tree-title {
-  font-family: "Pretendard", "Inter", sans-serif;
+  font-family: "Pretendard Variable", "Pretendard", "Inter", sans-serif;
   font-size: 22px;
-  fill: #111827;
+  fill: #2C1810;
   font-weight: 700;
   text-anchor: middle;
 }
