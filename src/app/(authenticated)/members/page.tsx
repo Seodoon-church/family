@@ -11,8 +11,19 @@ import { RelationshipManager } from "@/components/member/relationship-manager";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ChapterHeader } from "@/components/book/chapter-header";
+import { OrnamentDivider } from "@/components/book/ornament-divider";
 import { UserPlus, Users } from "lucide-react";
 import type { FamilyMember } from "@/types/family";
+
+const generationDescriptions: Record<number, string> = {
+  0: "이야기의 뿌리가 되는 분들",
+  1: "가풍을 이어가시는 분들",
+  2: "새로운 장을 쓰는 분들",
+  3: "이야기를 이어갈 분들",
+  4: "미래를 열어갈 분들",
+  5: "가장 어린 세대",
+};
 
 export default function MembersPage() {
   const { userProfile } = useAuth();
@@ -54,72 +65,90 @@ export default function MembersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner text="구성원을 불러오는 중..." />
+        <LoadingSpinner text="등장인물을 불러오는 중..." />
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <div className="flex items-center justify-between">
-          <h1
-            className="text-xl font-semibold text-foreground"
-            style={{ fontFamily: "var(--font-story)" }}
-          >
-            가족 구성원
-          </h1>
-          {isAdmin && (
-            <Button size="sm" onClick={() => setShowForm(true)}>
-              <UserPlus className="w-4 h-4 mr-1" />
-              구성원 추가
-            </Button>
-          )}
+    <div className="max-w-4xl mx-auto">
+      <ChapterHeader
+        title="등장인물"
+        subtitle="이 이야기에 등장하는 사람들"
+      />
+
+      {isAdmin && (
+        <div className="flex justify-center mb-6">
+          <Button size="sm" onClick={() => setShowForm(true)}>
+            <UserPlus className="w-4 h-4 mr-1" />
+            등장인물 추가
+          </Button>
         </div>
-        <div className="warm-divider mt-3" />
-      </div>
+      )}
 
       {members.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-border warm-shadow min-h-[300px] flex items-center justify-center">
-          <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-2xl bg-primary-light mx-auto flex items-center justify-center">
-              <Users className="w-8 h-8 text-primary/40" />
-            </div>
-            <p className="font-semibold text-foreground">
-              아직 등록된 구성원이 없습니다
-            </p>
-            <p className="text-sm text-muted">
-              가족 구성원을 추가하여 가계도를 만들어보세요.
-            </p>
-            {isAdmin && (
-              <Button onClick={() => setShowForm(true)}>
-                <UserPlus className="w-4 h-4 mr-1" />
-                첫 번째 구성원 추가
-              </Button>
-            )}
+        <div className="text-center py-16">
+          <div className="w-16 h-16 rounded-full bg-primary-light mx-auto flex items-center justify-center mb-4">
+            <Users className="w-8 h-8 text-primary/40" />
           </div>
+          <p
+            className="text-lg text-foreground mb-2"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            아직 등장인물이 없습니다
+          </p>
+          <p
+            className="text-sm text-muted mb-6"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            가족 구성원을 추가하여 이야기를 시작해보세요.
+          </p>
+          {isAdmin && (
+            <Button onClick={() => setShowForm(true)}>
+              <UserPlus className="w-4 h-4 mr-1" />
+              첫 번째 등장인물 추가
+            </Button>
+          )}
         </div>
       ) : (
         <>
           {/* Members by generation */}
           {Object.keys(generations)
             .sort((a, b) => Number(a) - Number(b))
-            .map((gen) => (
+            .map((gen, idx) => (
               <div key={gen}>
-                <h2 className="mb-3 flex items-center gap-2">
-                  <span className="chapter-number text-3xl">{Number(gen) + 1}</span>
-                  <span className="text-sm font-semibold text-foreground">세대</span>
-                  <div className="flex-1 h-px bg-border ml-2" />
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {idx > 0 && <OrnamentDivider symbol="~" className="my-2" />}
+
+                {/* Generation header */}
+                <div className="mb-4 mt-6">
+                  <h2 className="flex items-center gap-3">
+                    <span className="chapter-number text-3xl">{Number(gen) + 1}</span>
+                    <span
+                      className="text-lg font-semibold text-foreground"
+                      style={{ fontFamily: "var(--font-story)" }}
+                    >
+                      세대
+                    </span>
+                  </h2>
+                  <p className="text-sm text-muted mt-1 ml-12">
+                    {generationDescriptions[Number(gen)] || ""}
+                  </p>
+                </div>
+
+                {/* Character entries */}
+                <div className="ml-2">
                   {generations[Number(gen)]
                     .sort((a, b) => a.birthOrder - b.birthOrder)
-                    .map((member) => (
-                      <MemberCard
-                        key={member.id}
-                        member={member}
-                        onEdit={isAdmin ? setEditingMember : undefined}
-                      />
+                    .map((member, memberIdx) => (
+                      <div key={member.id}>
+                        {memberIdx > 0 && (
+                          <OrnamentDivider symbol="·" className="my-0" />
+                        )}
+                        <MemberCard
+                          member={member}
+                          onEdit={isAdmin ? setEditingMember : undefined}
+                        />
+                      </div>
                     ))}
                 </div>
               </div>
@@ -127,19 +156,26 @@ export default function MembersPage() {
 
           {/* Relationship Manager */}
           {isAdmin && (
-            <Card>
-              <CardHeader>
-                <CardTitle>관계 설정</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RelationshipManager
-                  members={members}
-                  relationships={relationships}
-                  onAdd={addRelationship}
-                  onDelete={deleteRelationship}
-                />
-              </CardContent>
-            </Card>
+            <>
+              <OrnamentDivider className="my-8" />
+              <Card>
+                <CardHeader>
+                  <CardTitle
+                    style={{ fontFamily: "var(--font-story)" }}
+                  >
+                    관계 설정
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RelationshipManager
+                    members={members}
+                    relationships={relationships}
+                    onAdd={addRelationship}
+                    onDelete={deleteRelationship}
+                  />
+                </CardContent>
+              </Card>
+            </>
           )}
         </>
       )}

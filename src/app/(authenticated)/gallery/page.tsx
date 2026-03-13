@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useMedia } from "@/hooks/use-media";
-import { MediaGrid } from "@/components/media/media-grid";
 import { MediaUpload } from "@/components/media/media-upload";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { Upload, Image, Video, Mic } from "lucide-react";
-import type { MediaType } from "@/types/media";
+import { ChapterHeader } from "@/components/book/chapter-header";
+import { OrnamentDivider } from "@/components/book/ornament-divider";
+import { Upload, Image, Video, Mic, Play, X, Camera } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { MediaType, Media } from "@/types/media";
 
 export default function GalleryPage() {
   const { user, userProfile } = useAuth();
@@ -16,6 +18,7 @@ export default function GalleryPage() {
   const { mediaList, loading, uploadProgress, uploadMedia, deleteMedia } = useMedia(familyId);
   const [showUpload, setShowUpload] = useState(false);
   const [filter, setFilter] = useState<MediaType | "ALL">("ALL");
+  const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
 
   const filteredMedia = filter === "ALL"
     ? mediaList
@@ -27,34 +30,32 @@ export default function GalleryPage() {
     setShowUpload(false);
   };
 
+  const tiltClasses = ["polaroid-tilt-1", "polaroid-tilt-2", "polaroid-tilt-3", "polaroid-tilt-4"];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner text="미디어를 불러오는 중..." />
+        <LoadingSpinner text="추억을 불러오는 중..." />
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-4">
-      <div>
-        <div className="flex items-center justify-between">
-          <h1
-            className="text-xl font-semibold text-foreground"
-            style={{ fontFamily: "var(--font-story)" }}
-          >
-            갤러리
-          </h1>
-          <Button size="sm" onClick={() => setShowUpload(true)}>
-            <Upload className="w-4 h-4 mr-1" />
-            추억 추가하기
-          </Button>
-        </div>
-        <div className="warm-divider mt-3" />
+    <div className="max-w-6xl mx-auto">
+      <ChapterHeader
+        title="추억 사진첩"
+        subtitle="함께한 순간들을 모아둔 앨범"
+      />
+
+      <div className="flex justify-center mb-6">
+        <Button size="sm" onClick={() => setShowUpload(true)}>
+          <Upload className="w-4 h-4 mr-1" />
+          추억 추가하기
+        </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 border-b border-border pb-2">
+      {/* Filter tabs */}
+      <div className="flex justify-center gap-1 border-b border-border pb-0 mb-8">
         {[
           { value: "ALL" as const, label: "전체", icon: null },
           { value: "PHOTO" as const, label: "사진", icon: Image },
@@ -64,13 +65,13 @@ export default function GalleryPage() {
           <button
             key={value}
             onClick={() => setFilter(value)}
-            className={`flex items-center gap-1 text-sm px-3 py-1.5 transition-colors ${
+            className={`relative flex items-center gap-1 text-sm px-4 py-2 transition-colors ${
               filter === value
-                ? "text-primary border-b-2 border-primary font-semibold"
+                ? "text-primary font-semibold border-b-2 border-primary"
                 : "text-muted hover:text-foreground"
             }`}
           >
-            {Icon && <Icon className="w-3 h-3" />}
+            {Icon && <Icon className="w-3.5 h-3.5" />}
             {label}
             {value !== "ALL" && (
               <span className="ml-1 text-xs">
@@ -81,10 +82,113 @@ export default function GalleryPage() {
         ))}
       </div>
 
-      <MediaGrid
-        mediaList={filteredMedia}
-        onDelete={userProfile?.role === "ADMIN" ? deleteMedia : undefined}
-      />
+      {/* Scrapbook grid */}
+      {filteredMedia.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="w-16 h-16 rounded-full bg-primary-light mx-auto flex items-center justify-center mb-4">
+            <Camera className="w-8 h-8 text-primary/40" />
+          </div>
+          <p
+            className="text-lg text-foreground mb-2"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            아직 추억이 없습니다
+          </p>
+          <p
+            className="text-sm text-muted"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            소중한 순간을 사진으로 남겨보세요.
+          </p>
+        </div>
+      ) : (
+        <div className="scrapbook-grid">
+          {filteredMedia.map((media, idx) => (
+            <div
+              key={media.id}
+              className={cn(
+                "polaroid cursor-pointer transition-transform duration-300",
+                tiltClasses[idx % 4]
+              )}
+              onClick={() => setSelectedMedia(media)}
+            >
+              {media.type === "PHOTO" ? (
+                <img
+                  src={media.downloadUrl}
+                  alt={media.title || media.fileName}
+                  className="w-full rounded-sm"
+                />
+              ) : media.type === "VIDEO" ? (
+                <div className="w-full aspect-video flex items-center justify-center bg-accent-blue/10 rounded-sm">
+                  <Play className="w-10 h-10 text-accent-blue" />
+                </div>
+              ) : (
+                <div className="w-full aspect-square flex items-center justify-center bg-accent-gold/10 rounded-sm">
+                  <Mic className="w-10 h-10 text-accent-gold" />
+                </div>
+              )}
+              {/* Caption */}
+              <p
+                className="text-xs text-muted text-center mt-1 truncate px-1"
+                style={{ fontFamily: "var(--font-story)" }}
+              >
+                {media.title || media.fileName}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <OrnamentDivider className="mt-10" />
+
+      {/* Lightbox */}
+      {selectedMedia && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedMedia(null)}>
+          <div className="relative max-w-4xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedMedia(null)}
+              className="absolute -top-10 right-0 text-white/80 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {selectedMedia.type === "PHOTO" ? (
+              <img
+                src={selectedMedia.downloadUrl}
+                alt={selectedMedia.title || selectedMedia.fileName}
+                className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+              />
+            ) : selectedMedia.type === "VIDEO" ? (
+              <video
+                src={selectedMedia.downloadUrl}
+                controls
+                className="w-full max-h-[80vh] rounded-lg"
+                autoPlay
+              />
+            ) : (
+              <div className="bg-card rounded-lg p-8 text-center">
+                <Mic className="w-16 h-16 text-accent-gold mx-auto mb-4" />
+                <audio src={selectedMedia.downloadUrl} controls className="w-full" autoPlay />
+              </div>
+            )}
+
+            <div className="mt-3 text-white/80 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-white">{selectedMedia.title || selectedMedia.fileName}</p>
+                {selectedMedia.description && <p className="text-xs mt-1">{selectedMedia.description}</p>}
+              </div>
+              {userProfile?.role === "ADMIN" && (
+                <button
+                  onClick={() => { deleteMedia(selectedMedia); setSelectedMedia(null); }}
+                  className="text-xs text-accent-red hover:text-red-400"
+                >
+                  삭제
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showUpload && (
         <MediaUpload

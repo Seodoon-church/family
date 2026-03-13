@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useStories } from "@/hooks/use-stories";
 import { StoryCard } from "@/components/story/story-card";
-import { Button } from "@/components/ui/button";
+import { ChapterHeader } from "@/components/book/chapter-header";
+import { OrnamentDivider } from "@/components/book/ornament-divider";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { STORY_CATEGORIES } from "@/lib/constants";
-import { PenSquare, BookOpen } from "lucide-react";
+import { Feather, BookOpen } from "lucide-react";
 
 import type { StoryCategory } from "@/types/story";
 
@@ -25,33 +26,18 @@ export default function StoriesPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-5">
-      <div>
-        <div className="flex items-center justify-between">
-          <h1
-            className="text-xl font-semibold text-foreground"
-            style={{ fontFamily: "var(--font-story)" }}
-          >
-            가족 이야기
-          </h1>
-          <a href="/stories/new">
-            <Button size="sm">
-              <PenSquare className="w-4 h-4 mr-1" />
-              글쓰기
-            </Button>
-          </a>
-        </div>
-        <div className="warm-divider mt-3" />
-      </div>
+    <div className="max-w-2xl mx-auto">
+      {/* Chapter Header */}
+      <ChapterHeader chapterNumber="제1장" title="가족 이야기" />
 
-      {/* Category Filter */}
-      <div className="flex flex-wrap gap-1.5">
+      {/* Category Filter - Sub-chapter tabs */}
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mb-8 px-4">
         <button
           onClick={() => setSelectedCategory(undefined)}
-          className={`text-xs px-3 py-1.5 rounded-full transition-all duration-150 ${
+          className={`text-sm py-1.5 border-b-2 transition-all duration-200 ${
             !selectedCategory
-              ? "bg-primary text-white shadow-sm"
-              : "bg-card text-muted border border-border hover:bg-primary-light"
+              ? "border-primary text-primary font-medium"
+              : "border-transparent text-muted hover:text-foreground"
           }`}
         >
           전체
@@ -60,10 +46,10 @@ export default function StoriesPage() {
           <button
             key={key}
             onClick={() => setSelectedCategory(key as StoryCategory)}
-            className={`text-xs px-3 py-1.5 rounded-full transition-all duration-150 ${
+            className={`text-sm py-1.5 border-b-2 transition-all duration-200 ${
               selectedCategory === key
-                ? "bg-primary text-white shadow-sm"
-                : "bg-card text-muted border border-border hover:bg-primary-light"
+                ? "border-primary text-primary font-medium"
+                : "border-transparent text-muted hover:text-foreground"
             }`}
           >
             {cat.label}
@@ -71,34 +57,48 @@ export default function StoriesPage() {
         ))}
       </div>
 
-      {/* Stories List */}
+      {/* Stories Feed */}
       {stories.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="w-16 h-16 rounded-2xl bg-primary-light mx-auto mb-4 flex items-center justify-center">
-            <BookOpen className="w-8 h-8 text-primary/40" />
-          </div>
+        <div className="text-center py-20">
+          <BookOpen className="w-10 h-10 text-primary/20 mx-auto mb-5" />
           <p
-            className="font-semibold text-foreground mb-1"
+            className="text-lg text-foreground/70 mb-2"
             style={{ fontFamily: "var(--font-story)" }}
           >
             아직 펼쳐지지 않은 이야기
           </p>
-          <p className="text-sm text-muted mb-5">
-            가족의 추억, 전통, 레시피 등을 기록해보세요.
-          </p>
-          <a href="/stories/new">
-            <Button>
-              <PenSquare className="w-4 h-4 mr-1" />
-              첫 번째 이야기 쓰기
-            </Button>
+          <a
+            href="/stories/new"
+            className="text-sm text-primary hover:text-primary/80 transition-colors"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            첫 이야기를 써보세요
           </a>
         </div>
       ) : (
-        <div className="bg-card rounded-2xl border border-border paper-texture p-5 space-y-3">
-          {stories.map((story) => (
-            <StoryCard key={story.id} story={story} />
+        <div className="space-y-0">
+          {stories.map((story, index) => (
+            <div key={story.id}>
+              <StoryCard story={story} />
+              {index < stories.length - 1 && (
+                <OrnamentDivider symbol="·" className="my-2" />
+              )}
+            </div>
           ))}
         </div>
+      )}
+
+      {/* Write Button - Fixed bottom right on mobile, inline on desktop */}
+      {stories.length > 0 && (
+        <a
+          href="/stories/new"
+          className="fixed bottom-6 right-6 md:static md:mt-10 md:mb-4 md:flex md:justify-center z-40"
+        >
+          <div className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-full shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all md:shadow-md">
+            <Feather className="w-4 h-4" />
+            <span className="text-sm font-medium">이야기 쓰기</span>
+          </div>
+        </a>
       )}
     </div>
   );

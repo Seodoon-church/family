@@ -6,6 +6,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useStories } from "@/hooks/use-stories";
 import { useMedia } from "@/hooks/use-media";
 import { StoryEditor } from "@/components/story/story-editor";
+import { ChapterHeader } from "@/components/book/chapter-header";
+import { GoldCorners } from "@/components/book/gold-corners";
 import type { AttachedMedia } from "@/components/story/story-editor";
 import { ArrowLeft } from "lucide-react";
 
@@ -75,12 +77,17 @@ export default function NewStoryPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <a href="/stories" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground transition-colors mb-6">
+      <a href="/stories" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground transition-colors mb-4">
         <ArrowLeft className="w-4 h-4" />
         이야기 목록
       </a>
 
-      <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
+      {/* Chapter Header */}
+      <ChapterHeader title="새로운 한 페이지" />
+
+      {/* Editor in paper-texture with gold corners */}
+      <div className="relative paper-texture rounded-2xl border border-border p-6 md:p-8">
+        <GoldCorners size={24} />
         <StoryEditor onSubmit={handleSubmit} />
         {uploadStatus && (
           <div className="mt-4 text-center">

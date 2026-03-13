@@ -226,3 +226,213 @@ body {
     inset 6px 0 12px -4px rgba(44, 24, 16, 0.08),
     0 1px 3px rgba(44, 24, 16, 0.06);
 }
+
+/* ===== Book Metaphor Design System ===== */
+
+/* Book page container */
+.book-page {
+  background: var(--card);
+  min-height: calc(100vh - 80px);
+  position: relative;
+  box-shadow:
+    inset 0 0 40px rgba(44, 24, 16, 0.02),
+    0 0 20px rgba(44, 24, 16, 0.05);
+}
+
+/* Page curl effect */
+.page-curl {
+  position: relative;
+}
+
+.page-curl::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, transparent 50%, var(--warm-hover) 50%);
+  border-top-left-radius: 8px;
+  box-shadow: -2px -2px 5px rgba(44, 24, 16, 0.05);
+  pointer-events: none;
+}
+
+/* Ornament divider with center symbol */
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.ornament-divider::before,
+.ornament-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+}
+
+/* Book progress bar */
+.book-progress {
+  height: 4px;
+  background: var(--warm-hover);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.book-progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--primary), var(--accent-gold));
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* Book spine (left edge) */
+.book-spine {
+  width: 48px;
+  background: linear-gradient(to right, var(--primary-dark), var(--primary));
+  box-shadow: inset -4px 0 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.spine-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--font-story);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+}
+
+/* Bookmark tabs (right edge) */
+.bookmark-nav {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bookmark-item {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 14px 6px;
+  border-radius: 8px 0 0 8px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 32px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-right: none;
+}
+
+.bookmark-item:hover {
+  width: 40px;
+  color: var(--foreground);
+  background: var(--warm-hover);
+}
+
+.bookmark-item.active {
+  width: 44px;
+  font-weight: 600;
+  color: var(--card);
+  box-shadow: -2px 0 8px rgba(44, 24, 16, 0.1);
+  border-color: transparent;
+}
+
+/* Page number footer */
+.page-number {
+  text-align: center;
+  font-family: var(--font-story);
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 1rem 0 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+/* Mobile book nav */
+.mobile-book-nav {
+  background: var(--card);
+  border-top: 2px solid var(--border);
+  box-shadow: 0 -4px 12px rgba(44, 24, 16, 0.06);
+}
+
+.mobile-book-tab {
+  position: relative;
+}
+
+.mobile-book-tab.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 0 0 3px 3px;
+}
+
+/* Scrapbook masonry for gallery */
+.scrapbook-grid {
+  column-count: 2;
+  column-gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .scrapbook-grid { column-count: 3; }
+}
+
+@media (min-width: 1024px) {
+  .scrapbook-grid { column-count: 4; }
+}
+
+.scrapbook-grid > * {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+/* Character entry */
+.character-entry {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  align-items: flex-start;
+}
+
+.character-portrait {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  box-shadow: 0 2px 8px rgba(44, 24, 16, 0.1);
+  flex-shrink: 0;
+}
+
+/* Page transition */
+.page-enter {
+  animation: pageIn 0.3s ease;
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

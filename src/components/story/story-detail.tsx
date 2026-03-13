@@ -10,6 +10,9 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
+import { GoldCorners } from "@/components/book/gold-corners";
+import { PageFooter } from "@/components/book/page-footer";
+import { OrnamentDivider } from "@/components/book/ornament-divider";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { formatDate, getRelativeTime } from "@/lib/utils";
@@ -70,10 +73,13 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
   };
 
   return (
-    <article className="space-y-6">
-      {/* Story Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-4">
+    <article className="relative paper-texture rounded-2xl p-6 md:p-10">
+      {/* Gold Corners */}
+      <GoldCorners size={28} />
+
+      {/* Story Header - Centered */}
+      <div className="text-center mb-8 pt-4">
+        <div className="flex items-center justify-center gap-2 mb-4">
           <span className="text-xs px-2.5 py-1 rounded-full bg-primary-light text-primary border border-primary/10 font-medium">
             {category?.label || story.category}
           </span>
@@ -85,15 +91,15 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
         </div>
 
         <h1
-          className="text-2xl font-bold text-foreground mb-4 font-story"
+          className="text-2xl md:text-3xl font-bold text-foreground mb-6"
           style={{ fontFamily: "var(--font-story)" }}
         >
           {story.title}
         </h1>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <Avatar name={story.authorName} size="md" />
-          <div>
+          <div className="text-left">
             <p className="text-sm font-semibold text-foreground">{story.authorName}</p>
             <p className="text-xs text-muted">
               {story.createdAt?.toDate && formatDate(story.createdAt.toDate())}
@@ -102,23 +108,26 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
         </div>
 
         {story.storyDate && (
-          <p className="date-stamp text-xs mt-3 pl-13">
+          <p className="date-stamp text-xs mt-3">
             이야기 시점: {formatDate(story.storyDate.toDate())}
           </p>
         )}
       </div>
 
-      {/* Divider */}
-      <div className="warm-divider" />
+      {/* Ornament Divider */}
+      <OrnamentDivider className="mb-8" />
 
-      {/* Story Content */}
-      <div className="prose prose-sm max-w-none whitespace-pre-wrap text-foreground/80 leading-relaxed font-story" style={{ fontFamily: "var(--font-story)" }}>
+      {/* Story Content - Prose centered */}
+      <div
+        className="max-w-prose mx-auto whitespace-pre-wrap text-foreground/80 leading-relaxed"
+        style={{ fontFamily: "var(--font-story)" }}
+      >
         {story.content}
       </div>
 
       {/* Media */}
       {story.mediaUrls?.length > 0 && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="max-w-prose mx-auto grid grid-cols-2 gap-3 mt-8">
           {story.mediaUrls.map((media, i) => {
             const isImage = media.type === "PHOTO" || media.type?.startsWith("image");
             const isVideo = media.type === "VIDEO" || media.type?.startsWith("video");
@@ -139,7 +148,7 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
 
       {/* Mentioned Members */}
       {story.mentionedMembers?.length > 0 && (
-        <div className="flex items-center gap-2 text-sm text-muted">
+        <div className="max-w-prose mx-auto flex items-center gap-2 text-sm text-muted mt-6">
           <span>등장인물:</span>
           {story.mentionedMembers.map((m) => (
             <span key={m.id} className="px-2 py-0.5 rounded-full bg-primary-light text-primary border border-primary/10 text-xs font-medium">
@@ -149,12 +158,15 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
         </div>
       )}
 
-      {/* Comments Section */}
-      <div className="pt-6 space-y-4">
-        <div className="warm-divider mb-4" />
-        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+      {/* Comments Section - "독자 노트" */}
+      <div className="max-w-prose mx-auto pt-8 space-y-4">
+        <OrnamentDivider symbol="~" className="mb-4" />
+        <h3
+          className="text-base font-semibold text-foreground flex items-center gap-2"
+          style={{ fontFamily: "var(--font-story)" }}
+        >
           <MessageCircle className="w-5 h-5 text-primary" />
-          댓글 {comments.length}개
+          독자 노트 {comments.length}개
         </h3>
 
         {comments.map((comment) => (
@@ -178,7 +190,7 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAddComment()}
-            placeholder="댓글을 입력하세요..."
+            placeholder="노트를 남겨보세요..."
             className="flex-1 h-11 rounded-xl border border-border bg-card px-4 text-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
           />
           <Button
@@ -189,6 +201,11 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
             <Send className="w-4 h-4" />
           </Button>
         </div>
+      </div>
+
+      {/* Page Footer */}
+      <div className="mt-10">
+        <PageFooter />
       </div>
     </article>
   );

@@ -1,23 +1,22 @@
 "use client";
 
-
 import { useAuth } from "@/lib/auth-context";
 import { useFamily } from "@/hooks/use-family";
 import { useMembers } from "@/hooks/use-members";
 import { useStories } from "@/hooks/use-stories";
 import { useMedia } from "@/hooks/use-media";
 import { useEvents } from "@/hooks/use-events";
-import { QuickCompose } from "@/components/dashboard/quick-compose";
-import { MiniTree } from "@/components/dashboard/mini-tree";
-import { RecentStories } from "@/components/dashboard/recent-stories";
-import { RecentMedia } from "@/components/dashboard/recent-media";
-import { UpcomingEvents } from "@/components/dashboard/upcoming-events";
+import { ChapterHeader } from "@/components/book/chapter-header";
+import { OrnamentDivider } from "@/components/book/ornament-divider";
+import { BookProgress } from "@/components/book/book-progress";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { Users, BookOpen, Image, CalendarDays, PenSquare, UserPlus, GitBranchPlus, ChevronRight, Feather, TreePine } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
+import { getRelativeTime, formatDate } from "@/lib/utils";
+import { Feather, ChevronRight, TreePine, CalendarDays } from "lucide-react";
 
 function getGreeting() {
   const hour = new Date().getHours();
-  if (hour < 6) return "좋은 밤입니다,";
+  if (hour < 6) return "고요한 밤,";
   if (hour < 12) return "좋은 아침입니다,";
   if (hour < 18) return "좋은 오후입니다,";
   return "좋은 저녁입니다,";
@@ -37,7 +36,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner text="불러오는 중..." />
+        <LoadingSpinner text="페이지를 펼치는 중..." />
       </div>
     );
   }
@@ -47,57 +46,54 @@ export default function DashboardPage() {
   const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 ${days[today.getDay()]}`;
   const familyName = family?.name || "우리 가족";
 
-  const quickActions = [
-    { href: "/stories/new", label: "이야기 쓰기", desc: "가족의 일상을 기록하세요", icon: PenSquare, color: "text-primary bg-primary/10" },
-    { href: "/members", label: "구성원 추가", desc: "새 가족을 등록하세요", icon: UserPlus, color: "text-accent-green bg-accent-green/10" },
-    { href: "/tree", label: "가계도 보기", desc: "가족 관계를 한눈에", icon: GitBranchPlus, color: "text-accent-gold bg-accent-gold/10" },
-  ];
+  // Latest story
+  const latestStory = stories.length > 0 ? stories[0] : null;
+
+  // Upcoming event within 7 days
+  const upcomingEvent = events
+    .filter((event) => {
+      if (!event.eventDate?.toDate) return false;
+      const eventDate = event.eventDate.toDate();
+      const diffMs = eventDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 && diffDays <= 7;
+    })
+    .sort((a, b) => {
+      const dateA = a.eventDate?.toDate?.() || new Date();
+      const dateB = b.eventDate?.toDate?.() || new Date();
+      return dateA.getTime() - dateB.getTime();
+    })[0] || null;
+
+  const getDDay = (eventDate: Date) => {
+    const diffMs = eventDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return "D-Day";
+    return `D-${diffDays}`;
+  };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-5">
-      {/* Warm Text Greeting */}
-      <div className="py-2">
-        <p className="text-sm text-muted mb-1" style={{ fontFamily: "var(--font-story)" }}>
-          {dateStr}
-        </p>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          {getGreeting()}{" "}
-          <span className="text-primary" style={{ fontFamily: "var(--font-story)" }}>
-            {familyName}
-          </span>
-        </h1>
-      </div>
+    <div className="max-w-2xl mx-auto">
+      {/* Chapter Header */}
+      <ChapterHeader title="오늘의 한 페이지" />
 
-      {/* Heartbeat Stats Strip */}
-      <section className="flex items-center gap-6 py-3 px-5 bg-card rounded-xl border border-border warm-shadow">
-        <div className="flex items-center gap-2 text-sm text-foreground">
-          <Users className="w-4 h-4 text-primary" />
-          <span>구성원 <strong>{members.length}</strong>명</span>
-        </div>
-        <div className="w-px h-4 bg-border" />
-        <div className="flex items-center gap-2 text-sm text-foreground">
-          <BookOpen className="w-4 h-4 text-accent-green" />
-          <span>이야기 <strong>{stories.length}</strong>건</span>
-        </div>
-        <div className="w-px h-4 bg-border" />
-        <div className="flex items-center gap-2 text-sm text-foreground">
-          <Image className="w-4 h-4 text-accent-gold" />
-          <span>추억 <strong>{mediaList.length}</strong>장</span>
-        </div>
-        <div className="w-px h-4 bg-border" />
-        <div className="flex items-center gap-2 text-sm text-foreground">
-          <CalendarDays className="w-4 h-4 text-accent-blue" />
-          <span>이벤트 <strong>{events.length}</strong>건</span>
-        </div>
-      </section>
+      {/* Date + Greeting */}
+      <div className="text-center -mt-4 mb-8">
+        <p className="date-stamp text-sm mb-2">{dateStr}</p>
+        <p
+          className="text-lg text-foreground/80"
+          style={{ fontFamily: "var(--font-story)" }}
+        >
+          {getGreeting()}{" "}
+          <span className="text-primary font-semibold">{familyName}</span>
+        </p>
+      </div>
 
       {/* Tree Wizard Shortcut - shown when only self is registered */}
       {members.length <= 1 && (
         <a
           href="/setup"
-          className="block bg-card rounded-xl border border-border warm-shadow p-5 hover:shadow-lg transition-all group relative overflow-hidden"
+          className="block rounded-xl border border-border warm-shadow p-5 mb-8 hover:shadow-lg transition-all group relative overflow-hidden bg-card/50"
         >
-          {/* Gold corner decorations */}
           <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-accent-gold rounded-tl-xl" />
           <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-accent-gold rounded-tr-xl" />
           <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-accent-gold rounded-bl-xl" />
@@ -115,85 +111,85 @@ export default function DashboardPage() {
         </a>
       )}
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left Column (2/3) */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Quick Compose */}
-          <QuickCompose />
-
-          {/* Recent Stories & Upcoming Events */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <RecentStories stories={stories} />
-            <UpcomingEvents events={events} />
+      {/* Latest Story Hero */}
+      {latestStory && (
+        <div className="bg-card/50 rounded-xl p-6 mb-6">
+          <h2
+            className="text-xl font-semibold text-foreground mb-3"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            {latestStory.title}
+          </h2>
+          <p
+            className="text-foreground/70 leading-relaxed mb-4 line-clamp-4"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            {latestStory.excerpt || latestStory.content.substring(0, 200)}
+          </p>
+          <div className="flex items-center gap-3 mb-4">
+            <Avatar name={latestStory.authorName} size="sm" />
+            <span className="text-sm text-foreground font-medium">{latestStory.authorName}</span>
+            <span className="date-stamp text-xs">
+              {latestStory.createdAt?.toDate && getRelativeTime(latestStory.createdAt.toDate())}
+            </span>
           </div>
-
-          {/* Mini Tree & Recent Media */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MiniTree members={members} />
-            <RecentMedia mediaList={mediaList} />
-          </div>
+          <a
+            href={`/stories/${latestStory.id}`}
+            className="text-sm text-primary hover:text-primary/80 transition-colors"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            계속 읽기...
+          </a>
         </div>
+      )}
 
-        {/* Right Column (1/3) - Quick Actions */}
-        <div className="space-y-4">
-          <div className="bg-card rounded-xl border border-border warm-shadow p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Feather className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground text-sm">빠른 액션</h3>
-                <p className="text-[11px] text-muted">자주 사용하는 기능</p>
-              </div>
-            </div>
+      {/* Ornament Divider */}
+      <OrnamentDivider className="my-8" />
 
-            <div className="space-y-1">
-              {quickActions.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <a
-                    key={action.href + action.label}
-                    href={action.href}
-                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-warm-hover transition-colors group"
-                  >
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${action.color}`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{action.label}</p>
-                      <p className="text-[11px] text-muted">{action.desc}</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-warm-subtle group-hover:text-primary transition-colors" />
-                  </a>
-                );
-              })}
-            </div>
+      {/* Book Progress */}
+      <BookProgress
+        stories={stories.length}
+        media={mediaList.length}
+        members={members.length}
+        events={events.length}
+      />
+
+      {/* Upcoming Event */}
+      {upcomingEvent && upcomingEvent.eventDate?.toDate && (
+        <div className="mt-8 bg-accent-gold/5 border border-accent-gold/20 rounded-xl p-5 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <CalendarDays className="w-4 h-4 text-accent-gold" />
+            <span className="text-xs text-accent-gold font-semibold tracking-wide">
+              {getDDay(upcomingEvent.eventDate.toDate())}
+            </span>
           </div>
-
-          {/* Family Info Card */}
-          <div className="bg-card rounded-xl border border-border warm-shadow p-5">
-            <h3 className="font-semibold text-foreground text-sm mb-3" style={{ fontFamily: "var(--font-story)" }}>가족 정보</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted">등록 구성원</span>
-                <span className="font-semibold text-foreground">{members.length}명</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted">작성된 이야기</span>
-                <span className="font-semibold text-foreground">{stories.length}건</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted">저장된 미디어</span>
-                <span className="font-semibold text-foreground">{mediaList.length}개</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted">등록 이벤트</span>
-                <span className="font-semibold text-foreground">{events.length}건</span>
-              </div>
-            </div>
-          </div>
+          <p
+            className="text-foreground font-medium"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            {upcomingEvent.title}
+          </p>
+          <p className="text-xs text-muted mt-1">
+            {formatDate(upcomingEvent.eventDate.toDate())}
+          </p>
         </div>
+      )}
+
+      {/* Quick Ink Prompt */}
+      <div className="mt-10 mb-4">
+        <OrnamentDivider symbol="~" className="mb-6" />
+        <a
+          href="/stories/new"
+          className="block text-center py-6 rounded-xl hover:bg-primary-light/30 transition-all duration-300 group"
+        >
+          <Feather className="w-5 h-5 text-primary/40 mx-auto mb-3 group-hover:text-primary/70 transition-colors" />
+          <p
+            className="text-foreground/50 group-hover:text-foreground/70 transition-colors italic"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            오늘의 이야기를 남겨보세요...
+          </p>
+        </a>
       </div>
     </div>
   );

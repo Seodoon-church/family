@@ -1,11 +1,9 @@
 "use client";
 
-
-import { Avatar } from "@/components/ui/avatar";
-import { getRelativeTime } from "@/lib/utils";
 import { STORY_CATEGORIES } from "@/lib/constants";
+import { getRelativeTime } from "@/lib/utils";
 import type { Story } from "@/types/story";
-import { MessageCircle, Pin } from "lucide-react";
+import { Pin } from "lucide-react";
 
 interface StoryCardProps {
   story: Story;
@@ -14,67 +12,53 @@ interface StoryCardProps {
 export function StoryCard({ story }: StoryCardProps) {
   const category = STORY_CATEGORIES[story.category as keyof typeof STORY_CATEGORIES];
 
-  return (
-    <a href={`/stories/${story.id}`}>
-      <article className="bg-card rounded-xl journal-border hover:bg-primary-light/30 transition-all duration-200 p-5 cursor-pointer group">
-        <div className="flex items-start gap-3">
-          <Avatar name={story.authorName} size="md" />
-          <div className="flex-1 min-w-0">
-            {/* Author Row */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-semibold text-foreground">{story.authorName}</span>
-              <span className="date-stamp text-xs">
-                {story.createdAt?.toDate && getRelativeTime(story.createdAt.toDate())}
-              </span>
-              {story.isPinned && <Pin className="w-3 h-3 text-accent-gold" />}
-            </div>
+  // Format date as month/day stacked
+  const createdDate = story.createdAt?.toDate ? story.createdAt.toDate() : null;
+  const month = createdDate ? `${createdDate.getMonth() + 1}월` : "";
+  const day = createdDate ? `${createdDate.getDate()}` : "";
 
-            {/* Title */}
+  return (
+    <a href={`/stories/${story.id}`} className="block">
+      <article className="flex items-start gap-4 py-4 px-3 journal-border hover:bg-primary-light/20 transition-all duration-200 cursor-pointer group rounded-lg">
+        {/* Left: Date margin */}
+        <div className="shrink-0 w-12 text-center pt-0.5">
+          <p className="date-stamp text-[11px] leading-tight">{month}</p>
+          <p className="text-lg font-semibold text-foreground/60 leading-tight">{day}</p>
+        </div>
+
+        {/* Right: Content area */}
+        <div className="flex-1 min-w-0">
+          {/* Title */}
+          <div className="flex items-center gap-2 mb-1">
             <h3
-              className="font-bold text-foreground mb-1.5 line-clamp-1 group-hover:text-primary transition-colors"
+              className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1"
               style={{ fontFamily: "var(--font-story)" }}
             >
               {story.title}
             </h3>
-
-            {/* Excerpt */}
-            <p
-              className="text-sm text-muted line-clamp-2 leading-relaxed"
-              style={{ fontFamily: "var(--font-story)" }}
-            >
-              {story.excerpt || story.content.substring(0, 100)}
-            </p>
-
-            {/* Footer */}
-            <div className="flex items-center gap-3 mt-3">
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-light text-primary border border-primary/10 font-medium">
-                {category?.label || story.category}
-              </span>
-              {story.mediaUrls?.length > 0 && (
-                <span className="text-xs text-muted">
-                  미디어 {story.mediaUrls.length}개
-                </span>
-              )}
-              <span className="flex items-center gap-1 text-xs text-muted">
-                <MessageCircle className="w-3.5 h-3.5" />
-                {story.commentCount}
-              </span>
-              {story.mentionedMembers?.length > 0 && (
-                <span className="text-xs text-muted">
-                  {story.mentionedMembers.map((m) => m.name).join(", ")}
-                </span>
-              )}
-            </div>
+            {story.isPinned && <Pin className="w-3 h-3 text-accent-gold shrink-0" />}
           </div>
 
-          {/* Thumbnail */}
-          {story.mediaUrls?.[0] && (story.mediaUrls[0].type === "PHOTO" || story.mediaUrls[0].type?.startsWith("image")) && (
-            <img
-              src={story.mediaUrls[0].url}
-              alt=""
-              className="w-20 h-20 rounded-xl object-cover shrink-0 border border-border"
-            />
-          )}
+          {/* Excerpt */}
+          <p
+            className="text-sm text-foreground/70 line-clamp-2 leading-relaxed mb-2"
+            style={{ fontFamily: "var(--font-story)" }}
+          >
+            {story.excerpt || story.content.substring(0, 100)}
+          </p>
+
+          {/* Bottom: Author + Category */}
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted">{story.authorName}</span>
+            <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-light text-primary border border-primary/10 font-medium">
+              {category?.label || story.category}
+            </span>
+            {createdDate && (
+              <span className="text-xs text-muted ml-auto">
+                {getRelativeTime(createdDate)}
+              </span>
+            )}
+          </div>
         </div>
       </article>
     </a>
