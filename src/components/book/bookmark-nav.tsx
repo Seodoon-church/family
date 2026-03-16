@@ -9,6 +9,7 @@ import {
   Camera,
   Clock,
   GitBranchPlus,
+  BookText,
   BookMarked,
 } from "lucide-react";
 
@@ -20,6 +21,7 @@ const chapters = [
   { href: "/gallery", label: "사진첩", icon: Camera, bgColor: "bg-accent-green" },
   { href: "/timeline", label: "연대기", icon: Clock, bgColor: "bg-accent-red" },
   { href: "/tree", label: "가계도", icon: GitBranchPlus, bgColor: "bg-primary" },
+  { href: "/diary", label: "연감", icon: BookText, bgColor: "bg-accent-gold" },
   { href: "/settings", label: "판권", icon: BookMarked, bgColor: "bg-muted" },
 ];
 

@@ -12,6 +12,7 @@ import {
   GitBranchPlus,
   Camera,
   Clock,
+  BookText,
   Settings,
   X,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const moreMenuItems = [
   { href: "/tree", label: "가계도", icon: GitBranchPlus, color: "text-primary" },
   { href: "/gallery", label: "사진첩", icon: Camera, color: "text-accent-green" },
   { href: "/timeline", label: "연대기", icon: Clock, color: "text-accent-red" },
+  { href: "/diary", label: "연감", icon: BookText, color: "text-accent-gold" },
   { href: "/settings", label: "설정", icon: Settings, color: "text-muted" },
 ];
 
