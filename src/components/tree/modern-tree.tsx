@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
-import { cn } from "@/lib/utils";
+import { useMemo, useEffect } from "react";
 import type { TreePerson } from "@/types/tree";
 
 interface ModernTreeProps {
   data: TreePerson;
+  viewBox?: string;
+  isDragging?: boolean;
+  onDimensionsChange?: (w: number, h: number) => void;
 }
 
 interface LayoutNode {
@@ -79,7 +81,7 @@ function getAllNodes(node: LayoutNode): LayoutNode[] {
   return [node, ...node.children.flatMap(getAllNodes)];
 }
 
-export function ModernTree({ data }: ModernTreeProps) {
+export function ModernTree({ data, viewBox: externalViewBox, isDragging, onDimensionsChange }: ModernTreeProps) {
   const root = useMemo(() => {
     const tree = layoutTree(data);
     // Shift tree so no node is clipped on the left
@@ -98,97 +100,112 @@ export function ModernTree({ data }: ModernTreeProps) {
   const svgW = maxX + 40;
   const svgH = maxY + 40;
 
+  useEffect(() => {
+    onDimensionsChange?.(svgW, svgH);
+  }, [svgW, svgH, onDimensionsChange]);
+
+  const computedViewBox = externalViewBox || `0 0 ${svgW} ${svgH}`;
+
   return (
-    <div className="w-full p-2">
-      <svg
-        viewBox={`0 0 ${svgW} ${svgH}`}
-        className="w-full h-auto"
-        preserveAspectRatio="xMidYMin meet"
-      >
-        {/* Spouse bracket - solid line bundling couple as one unit */}
-        {allNodes.filter((n) => n.spouse).map((node) => {
-          const bracketY = node.y + NODE_H / 2;
-          return (
-            <g key={`spouse-${node.person.id}`}>
-              {/* Horizontal bracket connecting couple */}
-              <line
-                x1={node.x + NODE_W} y1={bracketY}
-                x2={node.x + NODE_W + SPOUSE_GAP} y2={bracketY}
-                stroke="#C94040" strokeWidth={2}
-              />
-              {/* Small heart at center */}
-              <text
-                x={node.x + NODE_W + SPOUSE_GAP / 2}
-                y={bracketY - 6}
-                textAnchor="middle"
-                fontSize={8}
-                fill="#C94040"
-                opacity={0.6}
-              >
-                ♥
-              </text>
-            </g>
-          );
-        })}
+    <svg
+      viewBox={computedViewBox}
+      className={externalViewBox ? "w-full h-full absolute inset-0" : "w-full h-auto"}
+      preserveAspectRatio="xMidYMin meet"
+    >
+      {/* Shared clipPath for circular profile images */}
+      <defs>
+        <clipPath id="circle-clip" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+        </clipPath>
+      </defs>
 
-        {/* Links - from couple bracket center down to children's couple bracket center */}
-        {allNodes.map((node) => {
-          if (node.children.length === 0) return null;
+      {/* Spouse bracket - solid line bundling couple as one unit */}
+      {allNodes.filter((n) => n.spouse).map((node) => {
+        const bracketY = node.y + NODE_H / 2;
+        return (
+          <g key={`spouse-${node.person.id}`}>
+            {/* Horizontal bracket connecting couple */}
+            <line
+              x1={node.x + NODE_W} y1={bracketY}
+              x2={node.x + NODE_W + SPOUSE_GAP} y2={bracketY}
+              stroke="#C94040" strokeWidth={2}
+            />
+            {/* Small heart at center */}
+            <text
+              x={node.x + NODE_W + SPOUSE_GAP / 2}
+              y={bracketY - 6}
+              textAnchor="middle"
+              fontSize={8}
+              fill="#C94040"
+              opacity={0.6}
+            >
+              ♥
+            </text>
+          </g>
+        );
+      })}
 
-          // Parent connection point: center of couple bracket (or center of single node)
-          const parentX = node.spouse
-            ? node.x + NODE_W + SPOUSE_GAP / 2
-            : node.x + NODE_W / 2;
-          const parentY = node.y + NODE_H;
-          const midY = parentY + V_GAP / 2;
+      {/* Links - from couple bracket center down to children's couple bracket center */}
+      {allNodes.map((node) => {
+        if (node.children.length === 0) return null;
 
-          // Child connection points: center of couple bracket if has spouse, else center of node
-          const childXs = node.children.map((c) =>
-            c.spouse
-              ? c.x + NODE_W + SPOUSE_GAP / 2
-              : c.x + NODE_W / 2
-          );
-          const minChildX = Math.min(...childXs);
-          const maxChildX = Math.max(...childXs);
+        // Parent connection point: center of couple bracket (or center of single node)
+        const parentX = node.spouse
+          ? node.x + NODE_W + SPOUSE_GAP / 2
+          : node.x + NODE_W / 2;
+        const parentY = node.y + NODE_H;
+        const midY = parentY + V_GAP / 2;
 
-          return (
-            <g key={`links-${node.person.id}`}>
-              {/* Vertical from parent bracket down to mid */}
-              <line x1={parentX} y1={parentY} x2={parentX} y2={midY}
+        // Child connection points: center of couple bracket if has spouse, else center of node
+        const childXs = node.children.map((c) =>
+          c.spouse
+            ? c.x + NODE_W + SPOUSE_GAP / 2
+            : c.x + NODE_W / 2
+        );
+        const minChildX = Math.min(...childXs);
+        const maxChildX = Math.max(...childXs);
+
+        return (
+          <g key={`links-${node.person.id}`}>
+            {/* Vertical from parent bracket down to mid */}
+            <line x1={parentX} y1={parentY} x2={parentX} y2={midY}
+              stroke="#D4C8BA" strokeWidth={2} opacity={0.8} />
+            {/* Horizontal bar across children */}
+            {node.children.length > 1 && (
+              <line x1={minChildX} y1={midY} x2={maxChildX} y2={midY}
                 stroke="#D4C8BA" strokeWidth={2} opacity={0.8} />
-              {/* Horizontal bar across children */}
-              {node.children.length > 1 && (
-                <line x1={minChildX} y1={midY} x2={maxChildX} y2={midY}
+            )}
+            {/* Vertical from mid down to each child's couple center */}
+            {node.children.map((child, ci) => {
+              const cx = childXs[ci];
+              return (
+                <line key={`drop-${child.person.id}`}
+                  x1={cx} y1={midY} x2={cx} y2={child.y}
                   stroke="#D4C8BA" strokeWidth={2} opacity={0.8} />
-              )}
-              {/* Vertical from mid down to each child's couple center */}
-              {node.children.map((child, ci) => {
-                const cx = childXs[ci];
-                return (
-                  <line key={`drop-${child.person.id}`}
-                    x1={cx} y1={midY} x2={cx} y2={child.y}
-                    stroke="#D4C8BA" strokeWidth={2} opacity={0.8} />
-                );
-              })}
-            </g>
-          );
-        })}
+              );
+            })}
+          </g>
+        );
+      })}
 
-        {/* Nodes */}
-        {allNodes.map((node) => (
-          <g key={node.person.id}>
+      {/* Nodes */}
+      {allNodes.map((node) => (
+        <g key={node.person.id}>
+          <a href={`/members/${node.person.id}/`} onClick={(e) => { if (isDragging) e.preventDefault(); }}>
             <ModernNode person={node.person} x={node.x} y={node.y} />
-            {node.spouse && (
+          </a>
+          {node.spouse && (
+            <a href={`/members/${node.spouse.id}/`} onClick={(e) => { if (isDragging) e.preventDefault(); }}>
               <ModernNode
                 person={node.spouse}
                 x={node.x + NODE_W + SPOUSE_GAP}
                 y={node.y}
               />
-            )}
-          </g>
-        ))}
-      </svg>
-    </div>
+            </a>
+          )}
+        </g>
+      ))}
+    </svg>
   );
 }
 
@@ -204,7 +221,7 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
     : null;
 
   return (
-    <g className="cursor-pointer" style={{ transition: "opacity 0.2s" }}>
+    <g className="cursor-pointer hover:opacity-80" style={{ transition: "opacity 0.2s" }}>
       {/* Highlight glow for "나 찾기" */}
       {isHighlighted && (
         <rect
@@ -231,7 +248,8 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
         strokeWidth={isHighlighted ? 2 : 1.5}
         opacity={person.isAlive ? 1 : 0.6}
       />
-      {/* Avatar circle */}
+
+      {/* Avatar circle with profile image or initial */}
       <circle
         cx={x + 28}
         cy={y + NODE_H / 2}
@@ -239,16 +257,28 @@ function ModernNode({ person, x, y }: { person: TreePerson; x: number; y: number
         fill={accentColor}
         opacity={0.15}
       />
-      <text
-        x={x + 28}
-        y={y + NODE_H / 2 + 5}
-        textAnchor="middle"
-        fontSize={14}
-        fontWeight="bold"
-        fill={accentColor}
-      >
-        {person.nameKorean.charAt(0)}
-      </text>
+      {person.profileImage ? (
+        <image
+          href={person.profileImage}
+          x={x + 28 - 17}
+          y={y + NODE_H / 2 - 17}
+          width={34}
+          height={34}
+          clipPath="url(#circle-clip)"
+          preserveAspectRatio="xMidYMid slice"
+        />
+      ) : (
+        <text
+          x={x + 28}
+          y={y + NODE_H / 2 + 5}
+          textAnchor="middle"
+          fontSize={14}
+          fontWeight="bold"
+          fill={accentColor}
+        >
+          {person.nameKorean.charAt(0)}
+        </text>
+      )}
 
       {/* Name */}
       <text

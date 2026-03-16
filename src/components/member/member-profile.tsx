@@ -4,13 +4,20 @@ import { Avatar } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
 import type { FamilyMember } from "@/types/family";
-import { MapPin, Briefcase, Calendar, BookOpen } from "lucide-react";
+import { MapPin, Briefcase, Calendar, BookOpen, Heart, Users, Baby } from "lucide-react";
+
+interface MemberRelations {
+  parents: FamilyMember[];
+  children: FamilyMember[];
+  spouses: FamilyMember[];
+}
 
 interface MemberProfileProps {
   member: FamilyMember;
+  relations?: MemberRelations | null;
 }
 
-export function MemberProfile({ member }: MemberProfileProps) {
+export function MemberProfile({ member, relations }: MemberProfileProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -111,6 +118,69 @@ export function MemberProfile({ member }: MemberProfileProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Family Relations */}
+      {relations && (
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            <h3 className="text-sm font-bold text-foreground">가족 관계</h3>
+
+            {relations.spouses.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Heart className="w-3.5 h-3.5 text-accent-red" />
+                  <span className="text-xs font-medium text-muted">배우자</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {relations.spouses.map((s) => (
+                    <RelationChip key={s.id} member={s} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {relations.parents.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Users className="w-3.5 h-3.5 text-accent-blue" />
+                  <span className="text-xs font-medium text-muted">부모</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {relations.parents.map((p) => (
+                    <RelationChip key={p.id} member={p} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {relations.children.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Baby className="w-3.5 h-3.5 text-accent-green" />
+                  <span className="text-xs font-medium text-muted">자녀</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {relations.children.map((c) => (
+                    <RelationChip key={c.id} member={c} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
+  );
+}
+
+function RelationChip({ member }: { member: FamilyMember }) {
+  return (
+    <a
+      href={`/members/${member.id}`}
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-warm-hover hover:bg-primary/10 transition-colors"
+    >
+      <Avatar name={member.nameKorean} src={member.profileImage} gender={member.gender} size="xs" />
+      <span className="text-sm font-medium text-foreground">{member.nameKorean}</span>
+    </a>
   );
 }

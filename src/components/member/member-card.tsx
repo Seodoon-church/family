@@ -3,15 +3,16 @@
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import type { FamilyMember, Family } from "@/types/family";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface MemberCardProps {
   member: FamilyMember;
   family?: Family | null;
   onEdit?: (member: FamilyMember) => void;
+  onDelete?: (member: FamilyMember) => void;
 }
 
-export function MemberCard({ member, family, onEdit }: MemberCardProps) {
+export function MemberCard({ member, family, onEdit, onDelete }: MemberCardProps) {
   const birthDateStr = member.birthDate
     ? new Date(member.birthDate.seconds * 1000).getFullYear() + "년생"
     : null;
@@ -45,14 +46,27 @@ export function MemberCard({ member, family, onEdit }: MemberCardProps) {
               </h3>
             </a>
 
-            {onEdit && (
-              <button
-                onClick={(e) => { e.preventDefault(); onEdit(member); }}
-                className="flex items-center gap-1 text-xs text-muted hover:text-primary transition-colors flex-shrink-0 mt-1"
-              >
-                <Pencil className="w-3 h-3" />
-                수정
-              </button>
+            {(onEdit || onDelete) && (
+              <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                {onEdit && (
+                  <button
+                    onClick={(e) => { e.preventDefault(); onEdit(member); }}
+                    className="flex items-center gap-1 text-xs text-muted hover:text-primary transition-colors"
+                  >
+                    <Pencil className="w-3 h-3" />
+                    수정
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={(e) => { e.preventDefault(); onDelete(member); }}
+                    className="flex items-center gap-1 text-xs text-muted hover:text-accent-red transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    삭제
+                  </button>
+                )}
+              </div>
             )}
           </div>
 

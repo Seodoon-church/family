@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useMembers } from "@/hooks/use-members";
 import { useRelationships } from "@/hooks/use-relationships";
 import { useFamily } from "@/hooks/use-family";
 import { useTreeData } from "@/hooks/use-tree-data";
+import { usePanZoom } from "@/hooks/use-pan-zoom";
 import { ModernTree } from "./modern-tree";
 import { TraditionalTree } from "./traditional-tree";
 import { TreeControls } from "./tree-controls";
@@ -16,8 +17,8 @@ import type { TreeViewMode } from "@/types/tree";
 
 export function FamilyTree() {
   const [viewMode, setViewMode] = useState<TreeViewMode>("modern");
-  const [zoom, setZoom] = useState(1);
   const [showMyView, setShowMyView] = useState(false);
+  const [treeDims, setTreeDims] = useState({ w: 800, h: 600 });
   const { userProfile } = useAuth();
   const { members, loading: membersLoading } = useMembers(userProfile?.familyId);
   const { relationships, loading: relsLoading } = useRelationships(userProfile?.familyId);
@@ -26,6 +27,20 @@ export function FamilyTree() {
   // 내 중심 보기: 하이라이트할 멤버 ID
   const highlightId = showMyView && userProfile?.memberId ? userProfile.memberId : undefined;
   const treeData = useTreeData(members, relationships, family?.surname, highlightId);
+
+  const { containerRef, viewBox, scale, setScale, fitToScreen, isDraggingRef } = usePanZoom({
+    contentWidth: treeDims.w,
+    contentHeight: treeDims.h,
+    minScale: 0.3,
+    maxScale: 3.0,
+  });
+
+  const handleDimensionsChange = useCallback((w: number, h: number) => {
+    setTreeDims((prev) => {
+      if (prev.w === w && prev.h === h) return prev;
+      return { w, h };
+    });
+  }, []);
 
   const loading = membersLoading || relsLoading;
 
@@ -53,7 +68,7 @@ export function FamilyTree() {
   return (
     <div className="flex flex-col h-full">
       {/* Controls */}
-      <div className="flex items-center justify-between p-3 border-b border-border bg-card">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-3 border-b border-border bg-card">
         <div className="flex items-center gap-2">
           <Button
             variant={viewMode === "modern" ? "primary" : "outline"}
@@ -87,25 +102,30 @@ export function FamilyTree() {
             </>
           )}
         </div>
-        <TreeControls zoom={zoom} onZoomChange={setZoom} />
+        <TreeControls zoom={scale} onZoomChange={setScale} onFitToScreen={fitToScreen} />
       </div>
 
-      {/* Tree */}
-      <div className="flex-1 overflow-auto relative" style={{ minHeight: "500px" }}>
-        <div
-          style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: "top left",
-            transition: "transform 0.2s ease",
-            width: `${100 / zoom}%`,
-          }}
-        >
-          {viewMode === "modern" ? (
-            <ModernTree data={treeData} />
-          ) : (
-            <TraditionalTree data={treeData} />
-          )}
-        </div>
+      {/* Tree with pan/zoom */}
+      <div
+        ref={containerRef}
+        className="flex-1 relative overflow-hidden touch-none"
+        style={{ minHeight: "500px", cursor: "grab" }}
+      >
+        {viewMode === "modern" ? (
+          <ModernTree
+            data={treeData}
+            viewBox={viewBox}
+            isDragging={isDraggingRef.current}
+            onDimensionsChange={handleDimensionsChange}
+          />
+        ) : (
+          <TraditionalTree
+            data={treeData}
+            viewBox={viewBox}
+            isDragging={isDraggingRef.current}
+            onDimensionsChange={handleDimensionsChange}
+          />
+        )}
       </div>
     </div>
   );

@@ -6,15 +6,16 @@ import { ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 interface TreeControlsProps {
   zoom: number;
   onZoomChange: (zoom: number) => void;
+  onFitToScreen?: () => void;
 }
 
-export function TreeControls({ zoom, onZoomChange }: TreeControlsProps) {
+export function TreeControls({ zoom, onZoomChange, onFitToScreen }: TreeControlsProps) {
   return (
     <div className="flex items-center gap-1">
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => onZoomChange(Math.max(0.3, zoom - 0.1))}
+        onClick={() => onZoomChange(Math.max(0.3, zoom / 1.2))}
         title="축소"
       >
         <ZoomOut className="w-4 h-4" />
@@ -25,7 +26,7 @@ export function TreeControls({ zoom, onZoomChange }: TreeControlsProps) {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => onZoomChange(Math.min(2, zoom + 0.1))}
+        onClick={() => onZoomChange(Math.min(3, zoom * 1.2))}
         title="확대"
       >
         <ZoomIn className="w-4 h-4" />
@@ -33,8 +34,8 @@ export function TreeControls({ zoom, onZoomChange }: TreeControlsProps) {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => onZoomChange(1)}
-        title="원래 크기"
+        onClick={onFitToScreen || (() => onZoomChange(1))}
+        title="화면에 맞추기"
       >
         <Maximize2 className="w-4 h-4" />
       </Button>

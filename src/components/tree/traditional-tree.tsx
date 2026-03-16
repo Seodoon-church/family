@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import "@/styles/traditional-tree.css";
 import type { TreePerson } from "@/types/tree";
 
 interface TraditionalTreeProps {
   data: TreePerson;
+  viewBox?: string;
+  isDragging?: boolean;
+  onDimensionsChange?: (w: number, h: number) => void;
 }
 
 interface LayoutNode {
@@ -79,7 +82,7 @@ function getAllNodes(node: LayoutNode): LayoutNode[] {
   return [node, ...node.children.flatMap(getAllNodes)];
 }
 
-export function TraditionalTree({ data }: TraditionalTreeProps) {
+export function TraditionalTree({ data, viewBox: externalViewBox, isDragging, onDimensionsChange }: TraditionalTreeProps) {
   const root = useMemo(() => {
     const tree = layoutTree(data);
     const all = getAllNodes(tree);
@@ -97,133 +100,149 @@ export function TraditionalTree({ data }: TraditionalTreeProps) {
   const svgW = maxX + 100;
   const svgH = maxY + 100;
 
+  useEffect(() => {
+    onDimensionsChange?.(svgW, svgH);
+  }, [svgW, svgH, onDimensionsChange]);
+
   // Find max generation
   const maxGen = Math.max(...allNodes.map((n) => n.person.generation));
 
+  const computedViewBox = externalViewBox || `0 0 ${svgW} ${svgH}`;
+
   return (
-    <div className="traditional-tree-container w-full p-4">
-      <svg
-        viewBox={`0 0 ${svgW} ${svgH}`}
-        className="w-full h-auto"
-        preserveAspectRatio="xMidYMin meet"
+    <svg
+      viewBox={computedViewBox}
+      className={externalViewBox ? "w-full h-full absolute inset-0" : "w-full h-auto"}
+      preserveAspectRatio="xMidYMin meet"
+    >
+      {/* Shared clipPath for circular profile images */}
+      <defs>
+        <clipPath id="trad-circle-clip" clipPathUnits="objectBoundingBox">
+          <circle cx="0.5" cy="0.5" r="0.5" />
+        </clipPath>
+      </defs>
+
+      {/* Title */}
+      <text
+        x={svgW / 2}
+        y={30}
+        className="tree-title"
+        textAnchor="middle"
       >
-        {/* Title */}
+        {data.nameKorean ? `${data.nameKorean.charAt(0)}씨 가계도` : "가계도"}
+      </text>
+
+      {/* Generation labels */}
+      {Array.from({ length: maxGen + 1 }, (_, i) => (
         <text
-          x={svgW / 2}
-          y={30}
-          className="tree-title"
-          textAnchor="middle"
+          key={`gen-${i}`}
+          x={15}
+          y={i * (NODE_H + V_GAP) + 50 + NODE_H / 2}
+          className="generation-label"
         >
-          {data.nameKorean ? `${data.nameKorean.charAt(0)}씨 가계도` : "가계도"}
+          {i + 1}世
         </text>
+      ))}
 
-        {/* Generation labels */}
-        {Array.from({ length: maxGen + 1 }, (_, i) => (
-          <text
-            key={`gen-${i}`}
-            x={15}
-            y={i * (NODE_H + V_GAP) + 50 + NODE_H / 2}
-            className="generation-label"
-          >
-            {i + 1}世
-          </text>
-        ))}
+      {/* Spouse bracket - solid line bundling couple */}
+      {allNodes.filter((n) => n.spouse).map((node) => (
+        <line
+          key={`spouse-link-${node.person.id}`}
+          x1={node.x + NODE_W}
+          y1={node.y + 50 + NODE_H / 2}
+          x2={node.x + NODE_W + SPOUSE_GAP}
+          y2={node.y + 50 + NODE_H / 2}
+          className="traditional-spouse-link"
+        />
+      ))}
 
-        {/* Spouse bracket - solid line bundling couple */}
-        {allNodes.filter((n) => n.spouse).map((node) => (
-          <line
-            key={`spouse-link-${node.person.id}`}
-            x1={node.x + NODE_W}
-            y1={node.y + 50 + NODE_H / 2}
-            x2={node.x + NODE_W + SPOUSE_GAP}
-            y2={node.y + 50 + NODE_H / 2}
-            className="traditional-spouse-link"
-          />
-        ))}
+      {/* Links - from couple bracket center down to children's couple center */}
+      {allNodes.map((node) => {
+        if (node.children.length === 0) return null;
 
-        {/* Links - from couple bracket center down to children's couple center */}
-        {allNodes.map((node) => {
-          if (node.children.length === 0) return null;
+        // Parent connection: center of couple bracket or center of single node
+        const parentX = node.spouse
+          ? node.x + NODE_W + SPOUSE_GAP / 2
+          : node.x + NODE_W / 2;
+        const parentY = node.y + 50 + NODE_H;
 
-          // Parent connection: center of couple bracket or center of single node
-          const parentX = node.spouse
-            ? node.x + NODE_W + SPOUSE_GAP / 2
-            : node.x + NODE_W / 2;
-          const parentY = node.y + 50 + NODE_H;
+        const childY = node.children[0].y + 50;
+        const midY = (parentY + childY) / 2;
 
-          const childY = node.children[0].y + 50;
-          const midY = (parentY + childY) / 2;
+        // Child connection: center of couple bracket if has spouse
+        const childXs = node.children.map((c) =>
+          c.spouse
+            ? c.x + NODE_W + SPOUSE_GAP / 2
+            : c.x + NODE_W / 2
+        );
+        const minChildX = Math.min(...childXs);
+        const maxChildX = Math.max(...childXs);
 
-          // Child connection: center of couple bracket if has spouse
-          const childXs = node.children.map((c) =>
-            c.spouse
-              ? c.x + NODE_W + SPOUSE_GAP / 2
-              : c.x + NODE_W / 2
-          );
-          const minChildX = Math.min(...childXs);
-          const maxChildX = Math.max(...childXs);
+        return (
+          <g key={`links-${node.person.id}`}>
+            {/* Vertical from parent bracket down to mid */}
+            <line
+              x1={parentX} y1={parentY}
+              x2={parentX} y2={midY}
+              className="traditional-link"
+            />
 
-          return (
-            <g key={`links-${node.person.id}`}>
-              {/* Vertical from parent bracket down to mid */}
+            {/* Horizontal bar across children */}
+            {node.children.length > 1 && (
               <line
-                x1={parentX} y1={parentY}
-                x2={parentX} y2={midY}
+                x1={minChildX} y1={midY}
+                x2={maxChildX} y2={midY}
                 className="traditional-link"
               />
+            )}
 
-              {/* Horizontal bar across children */}
-              {node.children.length > 1 && (
+            {/* Vertical from mid down to each child's couple center */}
+            {node.children.map((child, ci) => {
+              const cx = childXs[ci];
+              return (
                 <line
-                  x1={minChildX} y1={midY}
-                  x2={maxChildX} y2={midY}
+                  key={`link-${child.person.id}`}
+                  x1={cx} y1={midY}
+                  x2={cx} y2={childY}
                   className="traditional-link"
                 />
-              )}
+              );
+            })}
+          </g>
+        );
+      })}
 
-              {/* Vertical from mid down to each child's couple center */}
-              {node.children.map((child, ci) => {
-                const cx = childXs[ci];
-                return (
-                  <line
-                    key={`link-${child.person.id}`}
-                    x1={cx} y1={midY}
-                    x2={cx} y2={childY}
-                    className="traditional-link"
-                  />
-                );
-              })}
-            </g>
-          );
-        })}
-
-        {/* Nodes */}
-        {allNodes.map((node) => (
-          <g key={`node-${node.person.id}`}>
+      {/* Nodes */}
+      {allNodes.map((node) => (
+        <g key={`node-${node.person.id}`}>
+          <a href={`/members/${node.person.id}/`} onClick={(e) => { if (isDragging) e.preventDefault(); }}>
             <TraditionalNode person={node.person} x={node.x} y={node.y + 50} />
-            {node.spouse && (
+          </a>
+          {node.spouse && (
+            <a href={`/members/${node.spouse.id}/`} onClick={(e) => { if (isDragging) e.preventDefault(); }}>
               <TraditionalNode
                 person={node.spouse}
                 x={node.x + NODE_W + SPOUSE_GAP}
                 y={node.y + 50}
               />
-            )}
-          </g>
-        ))}
-      </svg>
-    </div>
+            </a>
+          )}
+        </g>
+      ))}
+    </svg>
   );
 }
 
 function TraditionalNode({ person, x, y }: { person: TreePerson; x: number; y: number }) {
   const isMale = person.gender === "MALE";
-  const nodeClass = `traditional-node ${isMale ? "male" : "female"} ${!person.isAlive ? "deceased" : ""}`;
+  const nodeClass = `traditional-node cursor-pointer ${isMale ? "male" : "female"} ${!person.isAlive ? "deceased" : ""}`;
 
   const birthYear = person.birthDate
     ? new Date(person.birthDate).getFullYear()
     : null;
 
   const displayName = person.nameHanja || person.nameKorean;
+  const hasPhoto = !!person.profileImage;
 
   return (
     <g className={nodeClass}>
@@ -235,12 +254,28 @@ function TraditionalNode({ person, x, y }: { person: TreePerson; x: number; y: n
         rx={2}
       />
 
+      {/* Small profile photo at top */}
+      {hasPhoto && (
+        <>
+          <circle cx={x + NODE_W / 2} cy={y + 14} r={11} fill="#fff" opacity={0.6} />
+          <image
+            href={person.profileImage}
+            x={x + NODE_W / 2 - 10}
+            y={y + 4}
+            width={20}
+            height={20}
+            clipPath="url(#trad-circle-clip)"
+            preserveAspectRatio="xMidYMid slice"
+          />
+        </>
+      )}
+
       {/* Name - vertical style approximation */}
       {displayName.split("").map((char, i) => (
         <text
           key={i}
           x={x + NODE_W / 2}
-          y={y + 22 + i * 20}
+          y={y + (hasPhoto ? 34 : 22) + i * 20}
           textAnchor="middle"
           className={person.nameHanja ? "name-hanja" : "name-korean"}
         >

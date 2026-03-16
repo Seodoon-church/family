@@ -13,6 +13,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ChapterHeader } from "@/components/book/chapter-header";
 import { OrnamentDivider } from "@/components/book/ornament-divider";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { UserPlus, Users } from "lucide-react";
 import type { FamilyMember, Family } from "@/types/family";
 
@@ -100,6 +101,8 @@ export default function MembersPage() {
   const { family } = useFamily(familyId);
   const [showForm, setShowForm] = useState(false);
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
+  const [deletingMember, setDeletingMember] = useState<FamilyMember | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const isAdmin = userProfile?.role === "ADMIN";
 
   const handleAdd = async (data: Partial<FamilyMember>, relation?: { memberId: string; type: "SPOUSE" | "PARENT_CHILD" }) => {
@@ -118,6 +121,19 @@ export default function MembersPage() {
     if (editingMember) {
       await updateMember(editingMember.id, data);
       setEditingMember(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingMember) return;
+    setDeleteLoading(true);
+    try {
+      await deleteMember(deletingMember.id);
+    } catch (err) {
+      console.error("Failed to delete member:", err);
+    } finally {
+      setDeleteLoading(false);
+      setDeletingMember(null);
     }
   };
 
@@ -217,6 +233,7 @@ export default function MembersPage() {
                                 member={entry.husband}
                                 family={family}
                                 onEdit={isAdmin ? setEditingMember : undefined}
+                                onDelete={isAdmin ? setDeletingMember : undefined}
                               />
                             </div>
                             <div className="hidden sm:flex items-center text-accent-gold/40 text-lg select-none">♥</div>
@@ -225,6 +242,7 @@ export default function MembersPage() {
                                 member={entry.wife}
                                 family={family}
                                 onEdit={isAdmin ? setEditingMember : undefined}
+                                onDelete={isAdmin ? setDeletingMember : undefined}
                               />
                             </div>
                           </div>
@@ -233,6 +251,7 @@ export default function MembersPage() {
                             member={entry.member}
                             family={family}
                             onEdit={isAdmin ? setEditingMember : undefined}
+                            onDelete={isAdmin ? setDeletingMember : undefined}
                           />
                         )}
                       </div>
@@ -286,6 +305,18 @@ export default function MembersPage() {
           isEdit
         />
       )}
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        open={!!deletingMember}
+        onClose={() => setDeletingMember(null)}
+        onConfirm={handleDelete}
+        title={`${deletingMember?.nameKorean || ""}님을 삭제하시겠습니까?`}
+        description="삭제된 구성원은 복구할 수 없습니다."
+        confirmText="삭제"
+        danger
+        loading={deleteLoading}
+      />
     </div>
   );
 }
