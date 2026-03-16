@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { STORY_CATEGORIES, MEDIA_MAX_SIZES } from "@/lib/constants";
 import type { StoryCategory } from "@/types/story";
 import { Send, ImagePlus, Video, X, Loader2 } from "lucide-react";
+import { RichTextEditor, isEditorEmpty } from "./rich-text-editor";
 
 export interface AttachedMedia {
   file: File;
@@ -26,9 +27,11 @@ interface StoryEditorProps {
     storyDate?: string;
     attachedFiles: AttachedMedia[];
   }) => Promise<void>;
+  /** 글 중간에 이미지 삽입 시 업로드 콜백 */
+  onImageUpload?: (file: File) => Promise<string | null>;
 }
 
-export function StoryEditor({ onSubmit }: StoryEditorProps) {
+export function StoryEditor({ onSubmit, onImageUpload }: StoryEditorProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState<StoryCategory>("MEMORY");
@@ -88,7 +91,7 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
+    if (!title.trim() || isEditorEmpty(content)) return;
 
     setSubmitting(true);
     try {
@@ -158,17 +161,16 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
       {/* Divider */}
       <div className="border-t border-border" />
 
-      {/* Content */}
+      {/* Content — Rich Text Editor */}
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="w-full min-h-[200px] text-base text-foreground/80 placeholder:text-warm-muted-light border-none outline-none bg-transparent resize-y leading-relaxed font-story"
+        <RichTextEditor
+          content={content}
+          onChange={setContent}
           placeholder="가족의 이야기를 자유롭게 적어보세요..."
-          required
+          onImageUpload={onImageUpload}
         />
       </div>
 
@@ -268,7 +270,7 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
             </span>
           )}
         </div>
-        <Button type="submit" disabled={submitting || !title.trim() || !content.trim()}>
+        <Button type="submit" disabled={submitting || !title.trim() || isEditorEmpty(content)}>
           {submitting ? (
             <>
               <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />

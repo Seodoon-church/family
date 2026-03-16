@@ -15,7 +15,7 @@ import { PageFooter } from "@/components/book/page-footer";
 import { OrnamentDivider } from "@/components/book/ornament-divider";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { formatDate, getRelativeTime } from "@/lib/utils";
+import { formatDate, getRelativeTime, convertLegacyContent } from "@/lib/utils";
 import { STORY_CATEGORIES } from "@/lib/constants";
 import type { Story, Comment } from "@/types/story";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
@@ -126,11 +126,10 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
 
       {/* Story Content - Prose centered */}
       <div
-        className="max-w-prose mx-auto whitespace-pre-wrap text-foreground/80 leading-relaxed"
+        className="max-w-prose mx-auto story-prose text-foreground/80 leading-relaxed"
         style={{ fontFamily: "var(--font-story)" }}
-      >
-        {story.content}
-      </div>
+        dangerouslySetInnerHTML={{ __html: convertLegacyContent(story.content) }}
+      />
 
       {/* Media */}
       {story.mediaUrls?.length > 0 && (

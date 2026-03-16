@@ -521,3 +521,145 @@ body {
     transform: translateX(0);
   }
 }
+
+/* ===== Tiptap Rich Text Editor ===== */
+
+.rich-text-wrapper {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: transparent;
+  transition: border-color 0.2s;
+}
+
+.rich-text-wrapper:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(160, 96, 75, 0.1);
+}
+
+/* Toolbar */
+.tiptap-toolbar {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--warm-hover);
+}
+
+/* Editor area */
+.tiptap-editor {
+  min-height: 200px;
+  padding: 1rem 1.25rem;
+  font-family: var(--font-story);
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--foreground);
+  outline: none;
+}
+
+.tiptap-editor:focus {
+  outline: none;
+}
+
+/* Placeholder */
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--warm-muted-light);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Prose styling inside editor & display */
+.tiptap-editor h2,
+.story-prose h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--foreground);
+  font-family: var(--font-story);
+}
+
+.tiptap-editor h3,
+.story-prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+  font-family: var(--font-story);
+}
+
+.tiptap-editor p,
+.story-prose p {
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-editor ul,
+.story-prose ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-editor ol,
+.story-prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-editor li,
+.story-prose li {
+  margin-bottom: 0.25rem;
+}
+
+.tiptap-editor blockquote,
+.story-prose blockquote {
+  border-left: 3px solid var(--accent-gold);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.tiptap-editor hr,
+.story-prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+.tiptap-editor strong,
+.story-prose strong {
+  font-weight: 700;
+}
+
+.tiptap-editor em,
+.story-prose em {
+  font-style: italic;
+}
+
+.tiptap-editor u,
+.story-prose u {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Inline images */
+.tiptap-editor img.editor-image,
+.story-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+}
+
+.tiptap-editor img.editor-image {
+  cursor: default;
+}
+
+.tiptap-editor img.editor-image.ProseMirror-selectednode {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}

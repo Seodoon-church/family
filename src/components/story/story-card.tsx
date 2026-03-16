@@ -1,7 +1,7 @@
 "use client";
 
 import { STORY_CATEGORIES } from "@/lib/constants";
-import { getRelativeTime } from "@/lib/utils";
+import { getRelativeTime, stripHtml } from "@/lib/utils";
 import type { Story } from "@/types/story";
 import { Pin } from "lucide-react";
 
@@ -47,7 +47,7 @@ export function StoryCard({ story }: StoryCardProps) {
             className="text-sm text-foreground/70 line-clamp-2 leading-relaxed mb-2"
             style={{ fontFamily: "var(--font-story)" }}
           >
-            {story.excerpt || story.content.substring(0, 100)}
+            {stripHtml(story.excerpt || story.content).substring(0, 100)}
           </p>
 
           {/* Bottom: Author + Category */}

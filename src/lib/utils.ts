@@ -27,3 +27,20 @@ export function getGenerationLabel(generation: number): string {
   const labels = ["시조", "2세", "3세", "4세", "5세", "6세", "7세", "8세", "9세", "10세"];
   return labels[generation] || `${generation + 1}세`;
 }
+
+/** HTML 태그를 제거하고 텍스트만 반환 */
+export function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
+/** 기존 plain text 콘텐츠를 HTML로 변환 (하위 호환) */
+export function convertLegacyContent(content: string): string {
+  if (!content) return "";
+  // 이미 HTML 태그가 있으면 그대로 반환
+  if (/<[a-z][\s\S]*>/i.test(content)) return content;
+  // plain text → 줄바꿈을 <p> 태그로 변환
+  return content
+    .split("\n")
+    .map((line) => `<p>${line || "&nbsp;"}</p>`)
+    .join("");
+}
