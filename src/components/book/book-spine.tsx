@@ -2,7 +2,7 @@
 
 interface BookSpineProps {
   familyName: string;
-  pageCount: number;
+  pageCount?: number;
 }
 
 export function BookSpine({ familyName, pageCount }: BookSpineProps) {
@@ -26,9 +26,11 @@ export function BookSpine({ familyName, pageCount }: BookSpineProps) {
       </div>
 
       {/* Page count at bottom */}
-      <div className="spine-text text-[10px] opacity-60">
-        현재 {pageCount}쪽
-      </div>
+      {pageCount != null && (
+        <div className="spine-text text-[10px] opacity-60">
+          현재 {pageCount}쪽
+        </div>
+      )}
     </div>
   );
 }

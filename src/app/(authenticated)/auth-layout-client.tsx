@@ -4,15 +4,13 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useFamily } from "@/hooks/use-family";
-import { useMembers } from "@/hooks/use-members";
-import { useStories } from "@/hooks/use-stories";
-import { useMedia } from "@/hooks/use-media";
-import { useEvents } from "@/hooks/use-events";
 import { BookSpine } from "@/components/book/book-spine";
 import { BookmarkNav } from "@/components/book/bookmark-nav";
 import { MobileBookNav } from "@/components/book/mobile-book-nav";
 import { PageFooter } from "@/components/book/page-footer";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { NotificationPrompt } from "@/components/notifications/notification-prompt";
+import { NotificationToast } from "@/components/notifications/notification-toast";
 import { LogOut } from "lucide-react";
 
 export function AuthLayoutClient({
@@ -28,17 +26,6 @@ export function AuthLayoutClient({
 
   const familyId = userProfile?.familyId;
   const { family } = useFamily(familyId);
-  const { members } = useMembers(familyId);
-  const { stories } = useStories(familyId);
-  const { mediaList } = useMedia(familyId);
-  const { events } = useEvents(familyId);
-
-  // Calculate page count from content
-  const pageCount =
-    stories.length +
-    Math.ceil(mediaList.length / 4) +
-    Math.ceil(members.length / 2) +
-    Math.ceil(events.length / 3);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -88,7 +75,7 @@ export function AuthLayoutClient({
   return (
     <div className="flex min-h-screen bg-background">
       {/* Book Spine - desktop only */}
-      <BookSpine familyName={family?.name || ""} pageCount={pageCount} />
+      <BookSpine familyName={family?.name || ""} />
 
       {/* Main book page area */}
       <main className="flex-1 overflow-auto pb-20 md:pb-0 md:mr-12">
@@ -103,6 +90,12 @@ export function AuthLayoutClient({
             <LogOut className="w-4 h-4" />
           </button>
         </div>
+
+        {/* 알림 허용 프롬프트 */}
+        <NotificationPrompt userId={userProfile.id} familyId={userProfile.familyId} />
+
+        {/* 인앱 알림 토스트 */}
+        <NotificationToast userId={userProfile.id} familyId={userProfile.familyId} />
 
         {/* Book page content */}
         <div className="book-page paper-texture page-curl max-w-4xl mx-auto rounded-xl px-6 py-2 mb-8 md:px-10">

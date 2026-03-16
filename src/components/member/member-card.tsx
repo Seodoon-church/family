@@ -2,15 +2,16 @@
 
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import type { FamilyMember } from "@/types/family";
+import type { FamilyMember, Family } from "@/types/family";
 import { Pencil } from "lucide-react";
 
 interface MemberCardProps {
   member: FamilyMember;
+  family?: Family | null;
   onEdit?: (member: FamilyMember) => void;
 }
 
-export function MemberCard({ member, onEdit }: MemberCardProps) {
+export function MemberCard({ member, family, onEdit }: MemberCardProps) {
   const birthDateStr = member.birthDate
     ? new Date(member.birthDate.seconds * 1000).getFullYear() + "년생"
     : null;
@@ -56,18 +57,38 @@ export function MemberCard({ member, onEdit }: MemberCardProps) {
           </div>
 
           {/* Relationship / role info */}
-          <p className="text-sm text-muted mt-0.5">
-            {member.generation + 1}세대
-            {member.generationCount ? ` · ${member.generationCount}대손` : ""}
-            {member.occupation ? ` · ${member.occupation}` : ""}
-          </p>
+          {(() => {
+            // 가문 성씨와 비교하여 직계 여부 판별 (사위/며느리는 대손 비표시)
+            const familySurname = family?.surname;
+            const isBloodRelative = !familySurname
+              || (member.surname ? member.surname === familySurname : member.nameKorean.startsWith(familySurname));
 
-          {/* Clan info */}
-          {(member.surname || member.clan || member.branch) && (
-            <p className="text-xs text-muted mt-0.5">
-              {[member.clan, member.surname && `${member.surname}씨`, member.branch].filter(Boolean).join(" ")}
-            </p>
-          )}
+            const genCount = isBloodRelative
+              ? (member.generationCount
+                || (family?.referenceGenerationCount && family.referenceGeneration != null
+                  ? family.referenceGenerationCount + (member.generation - family.referenceGeneration)
+                  : null))
+              : null;
+
+            // 본관/성씨/파 — 직계만 가족 공통값 폴백
+            const surname = member.surname || (isBloodRelative ? family?.surname : undefined);
+            const clan = member.clan || (isBloodRelative ? family?.clan : undefined);
+            const branch = member.branch || (isBloodRelative ? family?.branch : undefined);
+            const clanText = [clan, surname && `${surname}씨`, branch].filter(Boolean).join(" ");
+
+            return (
+              <>
+                <p className="text-sm text-muted mt-0.5">
+                  {member.generation + 1}세대
+                  {genCount && genCount > 0 ? ` · ${genCount}대손` : ""}
+                  {member.occupation ? ` · ${member.occupation}` : ""}
+                </p>
+                {clanText && (
+                  <p className="text-xs text-muted mt-0.5">{clanText}</p>
+                )}
+              </>
+            );
+          })()}
 
           {/* Birth date */}
           {birthDateStr && (

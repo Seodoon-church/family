@@ -14,13 +14,23 @@ import type { FamilyMember } from "@/types/family";
 
 export function MemberDetailClient() {
   const params = useParams();
-  const id = params.id as string;
   const { userProfile } = useAuth();
   const [member, setMember] = useState<FamilyMember | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Static export에서 useParams가 '_'를 반환할 수 있으므로 URL에서 직접 추출
+  const id = (() => {
+    const paramId = params.id as string;
+    if (paramId && paramId !== "_") return paramId;
+    if (typeof window !== "undefined") {
+      const match = window.location.pathname.match(/\/members\/([^/]+)/);
+      if (match) return match[1];
+    }
+    return paramId;
+  })();
+
   useEffect(() => {
-    if (!userProfile?.familyId) return;
+    if (!id || id === "_" || !userProfile?.familyId) return;
 
     const fetchMember = async () => {
       const db = getFirebaseDb();

@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { formatDate, getRelativeTime } from "@/lib/utils";
 import { STORY_CATEGORIES } from "@/lib/constants";
 import type { Story, Comment } from "@/types/story";
+import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { MessageCircle, Send, Pin } from "lucide-react";
 
 interface StoryDetailProps {
@@ -31,7 +32,13 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const category = STORY_CATEGORIES[story.category as keyof typeof STORY_CATEGORIES];
+
+  // 이미지만 필터링 (라이트박스용)
+  const imageMedias = (story.mediaUrls || []).filter(
+    (m) => m.type === "PHOTO" || m.type?.startsWith("image")
+  );
 
   useEffect(() => {
     const db = getFirebaseDb();
@@ -131,10 +138,19 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
           {story.mediaUrls.map((media, i) => {
             const isImage = media.type === "PHOTO" || media.type?.startsWith("image");
             const isVideo = media.type === "VIDEO" || media.type?.startsWith("video");
+            // 이미지 배열 내 인덱스 계산 (라이트박스 연결)
+            const imageIndex = isImage
+              ? imageMedias.findIndex((m) => m.url === media.url)
+              : -1;
             return (
               <div key={i} className="rounded-xl overflow-hidden border border-border">
                 {isImage ? (
-                  <img src={media.url} alt="" className="w-full h-48 object-cover" />
+                  <img
+                    src={media.url}
+                    alt=""
+                    className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setLightboxIndex(imageIndex)}
+                  />
                 ) : isVideo ? (
                   <video src={media.url} controls className="w-full" />
                 ) : (
@@ -144,6 +160,15 @@ export function StoryDetail({ story, familyId, userId, userName }: StoryDetailPr
             );
           })}
         </div>
+      )}
+
+      {/* Image Lightbox */}
+      {lightboxIndex !== null && imageMedias.length > 0 && (
+        <ImageLightbox
+          images={imageMedias}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
       )}
 
       {/* Mentioned Members */}

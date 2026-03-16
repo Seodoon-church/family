@@ -14,7 +14,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ChapterHeader } from "@/components/book/chapter-header";
 import { OrnamentDivider } from "@/components/book/ornament-divider";
 import { UserPlus, Users } from "lucide-react";
-import type { FamilyMember } from "@/types/family";
+import type { FamilyMember, Family } from "@/types/family";
+
+import type { Relationship } from "@/types/family";
 
 const generationDescriptions: Record<number, string> = {
   0: "이야기의 뿌리가 되는 분들",
@@ -24,6 +26,71 @@ const generationDescriptions: Record<number, string> = {
   4: "미래를 열어갈 분들",
   5: "가장 어린 세대",
 };
+
+type CoupleOrSingle =
+  | { type: "couple"; husband: FamilyMember; wife: FamilyMember }
+  | { type: "single"; member: FamilyMember };
+
+function groupIntoCouples(
+  members: FamilyMember[],
+  relationships: Relationship[],
+  family?: Family | null
+): CoupleOrSingle[] {
+  const spouseRels = relationships.filter((r) => r.type === "SPOUSE");
+  const paired = new Set<string>();
+  const result: CoupleOrSingle[] = [];
+
+  // Sort members by birthOrder first
+  const sorted = [...members].sort((a, b) => a.birthOrder - b.birthOrder);
+
+  for (const member of sorted) {
+    if (paired.has(member.id)) continue;
+
+    // Find spouse relationship
+    const spouseRel = spouseRels.find(
+      (r) => r.fromId === member.id || r.toId === member.id
+    );
+
+    if (spouseRel) {
+      const spouseId = spouseRel.fromId === member.id ? spouseRel.toId : spouseRel.fromId;
+      const spouse = members.find((m) => m.id === spouseId);
+
+      if (spouse && !paired.has(spouseId)) {
+        paired.add(member.id);
+        paired.add(spouseId);
+
+        // Determine husband(left) and wife(right)
+        let husband: FamilyMember;
+        let wife: FamilyMember;
+
+        if (member.gender !== spouse.gender) {
+          // Different genders - MALE goes left
+          husband = member.gender === "MALE" ? member : spouse;
+          wife = member.gender === "MALE" ? spouse : member;
+        } else {
+          // Same gender (data issue) - family surname holder goes left
+          const familySurname = family?.surname;
+          if (familySurname) {
+            const memberHasSurname = member.surname === familySurname
+              || member.nameKorean.startsWith(familySurname);
+            husband = memberHasSurname ? member : spouse;
+            wife = memberHasSurname ? spouse : member;
+          } else {
+            husband = member;
+            wife = spouse;
+          }
+        }
+
+        result.push({ type: "couple", husband, wife });
+        continue;
+      }
+    }
+
+    result.push({ type: "single", member });
+  }
+
+  return result;
+}
 
 export default function MembersPage() {
   const { userProfile } = useAuth();
@@ -135,19 +202,39 @@ export default function MembersPage() {
                   </p>
                 </div>
 
-                {/* Character entries */}
+                {/* Character entries - couples side by side */}
                 <div className="ml-2">
-                  {generations[Number(gen)]
-                    .sort((a, b) => a.birthOrder - b.birthOrder)
-                    .map((member, memberIdx) => (
-                      <div key={member.id}>
-                        {memberIdx > 0 && (
+                  {groupIntoCouples(generations[Number(gen)], relationships, family)
+                    .map((entry, entryIdx) => (
+                      <div key={entry.type === "couple" ? `${entry.husband.id}-${entry.wife.id}` : entry.member.id}>
+                        {entryIdx > 0 && (
                           <OrnamentDivider symbol="·" className="my-0" />
                         )}
-                        <MemberCard
-                          member={member}
-                          onEdit={isAdmin ? setEditingMember : undefined}
-                        />
+                        {entry.type === "couple" ? (
+                          <div className="flex flex-col sm:flex-row gap-0 sm:gap-6 items-stretch">
+                            <div className="flex-1">
+                              <MemberCard
+                                member={entry.husband}
+                                family={family}
+                                onEdit={isAdmin ? setEditingMember : undefined}
+                              />
+                            </div>
+                            <div className="hidden sm:flex items-center text-accent-gold/40 text-lg select-none">♥</div>
+                            <div className="flex-1">
+                              <MemberCard
+                                member={entry.wife}
+                                family={family}
+                                onEdit={isAdmin ? setEditingMember : undefined}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <MemberCard
+                            member={entry.member}
+                            family={family}
+                            onEdit={isAdmin ? setEditingMember : undefined}
+                          />
+                        )}
                       </div>
                     ))}
                 </div>

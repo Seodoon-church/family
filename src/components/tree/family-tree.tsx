@@ -95,8 +95,9 @@ export function FamilyTree() {
         <div
           style={{
             transform: `scale(${zoom})`,
-            transformOrigin: "top center",
+            transformOrigin: "top left",
             transition: "transform 0.2s ease",
+            width: `${100 / zoom}%`,
           }}
         >
           {viewMode === "modern" ? (

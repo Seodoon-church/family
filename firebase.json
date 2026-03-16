@@ -1,4 +1,11 @@
 {
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": ["node_modules", ".git"]
+    }
+  ],
   "firestore": {
     "rules": "firestore.rules"
   },
@@ -24,6 +31,22 @@
       }
     ],
     "rewrites": [
+      {
+        "source": "/stories/*/",
+        "destination": "/stories/_/index.html"
+      },
+      {
+        "source": "/stories/*",
+        "destination": "/stories/_/index.html"
+      },
+      {
+        "source": "/members/*/",
+        "destination": "/members/_/index.html"
+      },
+      {
+        "source": "/members/*",
+        "destination": "/members/_/index.html"
+      },
       {
         "source": "**",
         "destination": "/index.html"

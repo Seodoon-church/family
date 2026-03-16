@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useMedia } from "@/hooks/use-media";
 import { MediaUpload } from "@/components/media/media-upload";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ChapterHeader } from "@/components/book/chapter-header";
 import { OrnamentDivider } from "@/components/book/ornament-divider";
-import { Upload, Image, Video, Mic, Play, X, Camera } from "lucide-react";
+import { Upload, Image, Video, Mic, Play, X, Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MediaType, Media } from "@/types/media";
 
@@ -18,11 +18,35 @@ export default function GalleryPage() {
   const { mediaList, loading, uploadProgress, uploadMedia, deleteMedia } = useMedia(familyId);
   const [showUpload, setShowUpload] = useState(false);
   const [filter, setFilter] = useState<MediaType | "ALL">("ALL");
-  const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const filteredMedia = filter === "ALL"
     ? mediaList
     : mediaList.filter((m) => m.type === filter);
+
+  const selectedMedia = selectedIndex !== null ? filteredMedia[selectedIndex] : null;
+
+  const goNext = useCallback(() => {
+    if (selectedIndex === null) return;
+    setSelectedIndex(selectedIndex < filteredMedia.length - 1 ? selectedIndex + 1 : 0);
+  }, [selectedIndex, filteredMedia.length]);
+
+  const goPrev = useCallback(() => {
+    if (selectedIndex === null) return;
+    setSelectedIndex(selectedIndex > 0 ? selectedIndex - 1 : filteredMedia.length - 1);
+  }, [selectedIndex, filteredMedia.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goPrev();
+      else if (e.key === "Escape") setSelectedIndex(null);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [selectedIndex, goNext, goPrev]);
 
   const handleUpload = async (file: File, metadata: { title?: string; description?: string }) => {
     if (!user) return;
@@ -110,7 +134,7 @@ export default function GalleryPage() {
                 "polaroid cursor-pointer transition-transform duration-300",
                 tiltClasses[idx % 4]
               )}
-              onClick={() => setSelectedMedia(media)}
+              onClick={() => setSelectedIndex(idx)}
             >
               {media.type === "PHOTO" ? (
                 <img
@@ -141,34 +165,67 @@ export default function GalleryPage() {
 
       <OrnamentDivider className="mt-10" />
 
-      {/* Lightbox */}
-      {selectedMedia && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedMedia(null)}>
-          <div className="relative max-w-4xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
+      {/* Lightbox with navigation */}
+      {selectedMedia && selectedIndex !== null && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={() => setSelectedIndex(null)}>
+          {/* Prev button */}
+          {filteredMedia.length > 1 && (
             <button
-              onClick={() => setSelectedMedia(null)}
-              className="absolute -top-10 right-0 text-white/80 hover:text-white"
+              onClick={(e) => { e.stopPropagation(); goPrev(); }}
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors"
+              aria-label="이전 사진"
             >
-              <X className="w-6 h-6" />
+              <ChevronLeft className="w-6 h-6 md:w-7 md:h-7" />
             </button>
+          )}
 
+          {/* Next button */}
+          {filteredMedia.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); goNext(); }}
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors"
+              aria-label="다음 사진"
+            >
+              <ChevronRight className="w-6 h-6 md:w-7 md:h-7" />
+            </button>
+          )}
+
+          {/* Close button */}
+          <button
+            onClick={() => setSelectedIndex(null)}
+            className="absolute top-3 right-3 md:top-4 md:right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors"
+            aria-label="닫기"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Counter */}
+          {filteredMedia.length > 1 && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-white/70 text-sm">
+              {selectedIndex + 1} / {filteredMedia.length}
+            </div>
+          )}
+
+          {/* Content */}
+          <div className="relative max-w-4xl max-h-[85vh] w-full px-14 md:px-20" onClick={(e) => e.stopPropagation()}>
             {selectedMedia.type === "PHOTO" ? (
               <img
                 src={selectedMedia.downloadUrl}
                 alt={selectedMedia.title || selectedMedia.fileName}
-                className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+                className="w-full h-auto max-h-[75vh] object-contain rounded-lg"
               />
             ) : selectedMedia.type === "VIDEO" ? (
               <video
+                key={selectedMedia.id}
                 src={selectedMedia.downloadUrl}
                 controls
-                className="w-full max-h-[80vh] rounded-lg"
+                className="w-full max-h-[75vh] rounded-lg"
                 autoPlay
               />
             ) : (
               <div className="bg-card rounded-lg p-8 text-center">
                 <Mic className="w-16 h-16 text-accent-gold mx-auto mb-4" />
-                <audio src={selectedMedia.downloadUrl} controls className="w-full" autoPlay />
+                <audio key={selectedMedia.id} src={selectedMedia.downloadUrl} controls className="w-full" autoPlay />
               </div>
             )}
 
@@ -179,7 +236,7 @@ export default function GalleryPage() {
               </div>
               {userProfile?.role === "ADMIN" && (
                 <button
-                  onClick={() => { deleteMedia(selectedMedia); setSelectedMedia(null); }}
+                  onClick={() => { deleteMedia(selectedMedia); setSelectedIndex(null); }}
                   className="text-xs text-accent-red hover:text-red-400"
                 >
                   삭제

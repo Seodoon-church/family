@@ -25,33 +25,34 @@ const SPOUSE_GAP = 20;
 function layoutTree(person: TreePerson, depth: number = 0): LayoutNode {
   const childNodes = person.children.map((child) => layoutTree(child, depth + 1));
 
+  const selfWidth = NODE_W + (person.spouse ? NODE_W + SPOUSE_GAP : 0);
+
   let totalWidth: number;
   if (childNodes.length === 0) {
-    totalWidth = NODE_W + (person.spouse ? NODE_W + SPOUSE_GAP : 0);
+    totalWidth = selfWidth;
   } else {
-    totalWidth = childNodes.reduce((sum, c) => sum + getSubtreeWidth(c), 0) + (childNodes.length - 1) * H_GAP;
-    const selfWidth = NODE_W + (person.spouse ? NODE_W + SPOUSE_GAP : 0);
-    totalWidth = Math.max(totalWidth, selfWidth);
+    const childrenWidth = childNodes.reduce((sum, c) => sum + getSubtreeWidth(c), 0) + (childNodes.length - 1) * H_GAP;
+    totalWidth = Math.max(childrenWidth, selfWidth);
   }
 
-  let xOffset = 0;
-  for (const child of childNodes) {
-    const w = getSubtreeWidth(child);
-    child.x = xOffset + w / 2;
-    xOffset += w + H_GAP;
-  }
-
-  // Center children under parent
+  // Position children - x = left edge of their visual block, centered in allocation
   if (childNodes.length > 0) {
-    const shift = (totalWidth - xOffset + H_GAP) / 2;
+    const childrenWidth = childNodes.reduce((sum, c) => sum + getSubtreeWidth(c), 0) + (childNodes.length - 1) * H_GAP;
+    let xOffset = (totalWidth - childrenWidth) / 2;
+
     for (const child of childNodes) {
-      shiftTree(child, shift);
+      const w = getSubtreeWidth(child);
+      const childSelfW = NODE_W + (child.person.spouse ? NODE_W + SPOUSE_GAP : 0);
+      const newX = xOffset + (w - childSelfW) / 2;
+      const dx = newX - child.x;
+      shiftTree(child, dx);
+      xOffset += w + H_GAP;
     }
   }
 
   return {
     person,
-    x: totalWidth / 2,
+    x: (totalWidth - selfWidth) / 2,
     y: depth * (NODE_H + V_GAP),
     spouse: person.spouse,
     children: childNodes,
@@ -79,51 +80,99 @@ function getAllNodes(node: LayoutNode): LayoutNode[] {
 }
 
 export function ModernTree({ data }: ModernTreeProps) {
-  const root = useMemo(() => layoutTree(data), [data]);
+  const root = useMemo(() => {
+    const tree = layoutTree(data);
+    // Shift tree so no node is clipped on the left
+    const all = getAllNodes(tree);
+    const minX = Math.min(...all.map((n) => n.x));
+    const PAD = 40;
+    if (minX < PAD) {
+      shiftTree(tree, PAD - minX);
+    }
+    return tree;
+  }, [data]);
   const allNodes = useMemo(() => getAllNodes(root), [root]);
 
-  const maxX = Math.max(...allNodes.map((n) => n.x + NODE_W));
+  const maxX = Math.max(...allNodes.map((n) => n.x + NODE_W + (n.spouse ? SPOUSE_GAP + NODE_W : 0)));
   const maxY = Math.max(...allNodes.map((n) => n.y + NODE_H));
-  const svgW = maxX + 100;
-  const svgH = maxY + 60;
+  const svgW = maxX + 40;
+  const svgH = maxY + 40;
 
   return (
-    <div className="flex justify-center p-6">
-      <svg width={svgW} height={svgH} className="overflow-visible">
-        {/* Links */}
-        {allNodes.map((node) =>
-          node.children.map((child) => {
-            const x1 = node.x + NODE_W / 2;
-            const y1 = node.y + NODE_H;
-            const x2 = child.x + NODE_W / 2;
-            const y2 = child.y;
-            const midY = (y1 + y2) / 2;
-            return (
-              <path
-                key={`${node.person.id}-${child.person.id}`}
-                d={`M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`}
-                fill="none"
-                stroke="#D4C8BA"
-                strokeWidth={2}
-                opacity={0.8}
+    <div className="w-full p-2">
+      <svg
+        viewBox={`0 0 ${svgW} ${svgH}`}
+        className="w-full h-auto"
+        preserveAspectRatio="xMidYMin meet"
+      >
+        {/* Spouse bracket - solid line bundling couple as one unit */}
+        {allNodes.filter((n) => n.spouse).map((node) => {
+          const bracketY = node.y + NODE_H / 2;
+          return (
+            <g key={`spouse-${node.person.id}`}>
+              {/* Horizontal bracket connecting couple */}
+              <line
+                x1={node.x + NODE_W} y1={bracketY}
+                x2={node.x + NODE_W + SPOUSE_GAP} y2={bracketY}
+                stroke="#C94040" strokeWidth={2}
               />
-            );
-          })
-        )}
+              {/* Small heart at center */}
+              <text
+                x={node.x + NODE_W + SPOUSE_GAP / 2}
+                y={bracketY - 6}
+                textAnchor="middle"
+                fontSize={8}
+                fill="#C94040"
+                opacity={0.6}
+              >
+                ♥
+              </text>
+            </g>
+          );
+        })}
 
-        {/* Spouse Links */}
-        {allNodes.filter((n) => n.spouse).map((node) => (
-          <line
-            key={`spouse-${node.person.id}`}
-            x1={node.x + NODE_W}
-            y1={node.y + NODE_H / 2}
-            x2={node.x + NODE_W + SPOUSE_GAP}
-            y2={node.y + NODE_H / 2}
-            stroke="#C94040"
-            strokeWidth={2}
-            strokeDasharray="4 3"
-          />
-        ))}
+        {/* Links - from couple bracket center down to children's couple bracket center */}
+        {allNodes.map((node) => {
+          if (node.children.length === 0) return null;
+
+          // Parent connection point: center of couple bracket (or center of single node)
+          const parentX = node.spouse
+            ? node.x + NODE_W + SPOUSE_GAP / 2
+            : node.x + NODE_W / 2;
+          const parentY = node.y + NODE_H;
+          const midY = parentY + V_GAP / 2;
+
+          // Child connection points: center of couple bracket if has spouse, else center of node
+          const childXs = node.children.map((c) =>
+            c.spouse
+              ? c.x + NODE_W + SPOUSE_GAP / 2
+              : c.x + NODE_W / 2
+          );
+          const minChildX = Math.min(...childXs);
+          const maxChildX = Math.max(...childXs);
+
+          return (
+            <g key={`links-${node.person.id}`}>
+              {/* Vertical from parent bracket down to mid */}
+              <line x1={parentX} y1={parentY} x2={parentX} y2={midY}
+                stroke="#D4C8BA" strokeWidth={2} opacity={0.8} />
+              {/* Horizontal bar across children */}
+              {node.children.length > 1 && (
+                <line x1={minChildX} y1={midY} x2={maxChildX} y2={midY}
+                  stroke="#D4C8BA" strokeWidth={2} opacity={0.8} />
+              )}
+              {/* Vertical from mid down to each child's couple center */}
+              {node.children.map((child, ci) => {
+                const cx = childXs[ci];
+                return (
+                  <line key={`drop-${child.person.id}`}
+                    x1={cx} y1={midY} x2={cx} y2={child.y}
+                    stroke="#D4C8BA" strokeWidth={2} opacity={0.8} />
+                );
+              })}
+            </g>
+          );
+        })}
 
         {/* Nodes */}
         {allNodes.map((node) => (

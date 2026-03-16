@@ -59,18 +59,27 @@ export default function NewStoryPage() {
 
     setUploadStatus("이야기 저장 중...");
 
-    await addStory({
+    const storyData: Record<string, unknown> = {
       title: data.title,
       content: data.content,
       excerpt: data.content.substring(0, 150),
       authorId: user.uid,
       authorName: userProfile.displayName,
       category: data.category,
-      storyDate: data.storyDate ? Timestamp.fromDate(new Date(data.storyDate)) : undefined,
       mentionedMembers: [],
-      mediaUrls,
+      mediaUrls: mediaUrls.map((m) => ({
+        url: m.url,
+        type: m.type,
+        ...(m.thumbnail ? { thumbnail: m.thumbnail } : {}),
+      })),
       isPinned: false,
-    } as Omit<Story, "id" | "createdAt" | "updatedAt" | "commentCount">);
+    };
+
+    if (data.storyDate) {
+      storyData.storyDate = Timestamp.fromDate(new Date(data.storyDate));
+    }
+
+    await addStory(storyData as Omit<Story, "id" | "createdAt" | "updatedAt" | "commentCount">);
 
     router.push("/stories");
   };

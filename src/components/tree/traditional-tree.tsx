@@ -25,32 +25,34 @@ const SPOUSE_GAP = 10;
 function layoutTree(person: TreePerson, depth: number = 0): LayoutNode {
   const childNodes = person.children.map((child) => layoutTree(child, depth + 1));
 
+  const selfWidth = NODE_W + (person.spouse ? NODE_W + SPOUSE_GAP : 0);
+
   let totalWidth: number;
   if (childNodes.length === 0) {
-    totalWidth = NODE_W + (person.spouse ? NODE_W + SPOUSE_GAP : 0);
+    totalWidth = selfWidth;
   } else {
-    totalWidth = childNodes.reduce((sum, c) => sum + getSubtreeWidth(c), 0) + (childNodes.length - 1) * H_GAP;
-    const selfWidth = NODE_W + (person.spouse ? NODE_W + SPOUSE_GAP : 0);
-    totalWidth = Math.max(totalWidth, selfWidth);
+    const childrenWidth = childNodes.reduce((sum, c) => sum + getSubtreeWidth(c), 0) + (childNodes.length - 1) * H_GAP;
+    totalWidth = Math.max(childrenWidth, selfWidth);
   }
 
-  let xOffset = 0;
-  for (const child of childNodes) {
-    const w = getSubtreeWidth(child);
-    child.x = xOffset + w / 2;
-    xOffset += w + H_GAP;
-  }
-
+  // Position children - x = left edge of their visual block, centered in allocation
   if (childNodes.length > 0) {
-    const shift = (totalWidth - xOffset + H_GAP) / 2;
+    const childrenWidth = childNodes.reduce((sum, c) => sum + getSubtreeWidth(c), 0) + (childNodes.length - 1) * H_GAP;
+    let xOffset = (totalWidth - childrenWidth) / 2;
+
     for (const child of childNodes) {
-      shiftTree(child, shift);
+      const w = getSubtreeWidth(child);
+      const childSelfW = NODE_W + (child.person.spouse ? NODE_W + SPOUSE_GAP : 0);
+      const newX = xOffset + (w - childSelfW) / 2;
+      const dx = newX - child.x;
+      shiftTree(child, dx);
+      xOffset += w + H_GAP;
     }
   }
 
   return {
     person,
-    x: totalWidth / 2,
+    x: (totalWidth - selfWidth) / 2,
     y: depth * (NODE_H + V_GAP),
     spouse: person.spouse,
     children: childNodes,
@@ -78,7 +80,16 @@ function getAllNodes(node: LayoutNode): LayoutNode[] {
 }
 
 export function TraditionalTree({ data }: TraditionalTreeProps) {
-  const root = useMemo(() => layoutTree(data), [data]);
+  const root = useMemo(() => {
+    const tree = layoutTree(data);
+    const all = getAllNodes(tree);
+    const minX = Math.min(...all.map((n) => n.x));
+    const PAD = 40;
+    if (minX < PAD) {
+      shiftTree(tree, PAD - minX);
+    }
+    return tree;
+  }, [data]);
   const allNodes = useMemo(() => getAllNodes(root), [root]);
 
   const maxX = Math.max(...allNodes.map((n) => n.x + NODE_W + (n.spouse ? NODE_W + SPOUSE_GAP : 0)));
@@ -90,8 +101,12 @@ export function TraditionalTree({ data }: TraditionalTreeProps) {
   const maxGen = Math.max(...allNodes.map((n) => n.person.generation));
 
   return (
-    <div className="traditional-tree-container flex justify-center p-8">
-      <svg width={svgW} height={svgH} className="overflow-visible">
+    <div className="traditional-tree-container w-full p-4">
+      <svg
+        viewBox={`0 0 ${svgW} ${svgH}`}
+        className="w-full h-auto"
+        preserveAspectRatio="xMidYMin meet"
+      >
         {/* Title */}
         <text
           x={svgW / 2}
@@ -114,54 +129,7 @@ export function TraditionalTree({ data }: TraditionalTreeProps) {
           </text>
         ))}
 
-        {/* Links - vertical/horizontal only for traditional style */}
-        {allNodes.map((node) => {
-          if (node.children.length === 0) return null;
-          const parentX = node.x + NODE_W / 2;
-          const parentY = node.y + 50 + NODE_H;
-
-          // Vertical line from parent down
-          const childY = node.children[0].y + 50;
-          const midY = (parentY + childY) / 2;
-
-          return (
-            <g key={`links-${node.person.id}`}>
-              {/* Vertical line from parent */}
-              <line
-                x1={parentX}
-                y1={parentY}
-                x2={parentX}
-                y2={midY}
-                className="traditional-link"
-              />
-
-              {/* Horizontal connector */}
-              {node.children.length > 1 && (
-                <line
-                  x1={node.children[0].x + NODE_W / 2}
-                  y1={midY}
-                  x2={node.children[node.children.length - 1].x + NODE_W / 2}
-                  y2={midY}
-                  className="traditional-link"
-                />
-              )}
-
-              {/* Vertical lines to children */}
-              {node.children.map((child) => (
-                <line
-                  key={`link-${child.person.id}`}
-                  x1={child.x + NODE_W / 2}
-                  y1={midY}
-                  x2={child.x + NODE_W / 2}
-                  y2={childY}
-                  className="traditional-link"
-                />
-              ))}
-            </g>
-          );
-        })}
-
-        {/* Spouse links */}
+        {/* Spouse bracket - solid line bundling couple */}
         {allNodes.filter((n) => n.spouse).map((node) => (
           <line
             key={`spouse-link-${node.person.id}`}
@@ -172,6 +140,62 @@ export function TraditionalTree({ data }: TraditionalTreeProps) {
             className="traditional-spouse-link"
           />
         ))}
+
+        {/* Links - from couple bracket center down to children's couple center */}
+        {allNodes.map((node) => {
+          if (node.children.length === 0) return null;
+
+          // Parent connection: center of couple bracket or center of single node
+          const parentX = node.spouse
+            ? node.x + NODE_W + SPOUSE_GAP / 2
+            : node.x + NODE_W / 2;
+          const parentY = node.y + 50 + NODE_H;
+
+          const childY = node.children[0].y + 50;
+          const midY = (parentY + childY) / 2;
+
+          // Child connection: center of couple bracket if has spouse
+          const childXs = node.children.map((c) =>
+            c.spouse
+              ? c.x + NODE_W + SPOUSE_GAP / 2
+              : c.x + NODE_W / 2
+          );
+          const minChildX = Math.min(...childXs);
+          const maxChildX = Math.max(...childXs);
+
+          return (
+            <g key={`links-${node.person.id}`}>
+              {/* Vertical from parent bracket down to mid */}
+              <line
+                x1={parentX} y1={parentY}
+                x2={parentX} y2={midY}
+                className="traditional-link"
+              />
+
+              {/* Horizontal bar across children */}
+              {node.children.length > 1 && (
+                <line
+                  x1={minChildX} y1={midY}
+                  x2={maxChildX} y2={midY}
+                  className="traditional-link"
+                />
+              )}
+
+              {/* Vertical from mid down to each child's couple center */}
+              {node.children.map((child, ci) => {
+                const cx = childXs[ci];
+                return (
+                  <line
+                    key={`link-${child.person.id}`}
+                    x1={cx} y1={midY}
+                    x2={cx} y2={childY}
+                    className="traditional-link"
+                  />
+                );
+              })}
+            </g>
+          );
+        })}
 
         {/* Nodes */}
         {allNodes.map((node) => (

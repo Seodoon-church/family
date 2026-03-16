@@ -15,12 +15,13 @@ import { TreeWizard } from "@/components/setup/tree-wizard";
 import { Users, UserPlus, ArrowRight, ArrowLeft, Check, Copy } from "lucide-react";
 import type { FamilyMember } from "@/types/family";
 
-type Step = "choose" | "create" | "join" | "register" | "tree-builder" | "done";
+type Step = "choose" | "create" | "join" | "link-member" | "register" | "tree-builder" | "done";
 
 export default function SetupPage() {
   const { user, userProfile, refreshProfile } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState<Step>("choose");
+  const [isCreator, setIsCreator] = useState(false);
 
   // Family creation
   const [familyName, setFamilyName] = useState("");
@@ -41,20 +42,27 @@ export default function SetupPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const { createFamily, joinFamily, family } = useFamily(createdFamilyId || userProfile?.familyId);
-  const { addMember } = useMembers(createdFamilyId || userProfile?.familyId);
+  const activeFamilyId = createdFamilyId || userProfile?.familyId;
+  const { createFamily, joinFamily, family } = useFamily(activeFamilyId);
+  const { members, addMember } = useMembers(activeFamilyId);
 
-  // If user already has familyId and memberId, go to tree-builder
-  // If user already has familyId but no memberId, go to register
+  // If user already has familyId, auto-advance to the right step
   useEffect(() => {
     if (userProfile?.familyId && step === "choose") {
       if (userProfile.memberId) {
-        setStep("tree-builder");
-      } else {
+        // Already linked to a member — go to done
+        setStep("done");
+      } else if (userProfile.role === "ADMIN") {
+        // Creator without member → register
+        setIsCreator(true);
         setStep("register");
+      } else {
+        // Joiner without member → find yourself in existing members
+        setIsCreator(false);
+        setStep("link-member");
       }
     }
-  }, [userProfile?.familyId, userProfile?.memberId, step]);
+  }, [userProfile?.familyId, userProfile?.memberId, userProfile?.role, step]);
 
   // Update memberName when userProfile loads
   useEffect(() => {
@@ -81,6 +89,7 @@ export default function SetupPage() {
     try {
       const newFamilyId = await createFamily(familyName.trim(), user.uid);
       setCreatedFamilyId(newFamilyId);
+      setIsCreator(true);
       await refreshProfile();
 
       // Fetch the created family's invite code
@@ -108,8 +117,10 @@ export default function SetupPage() {
     try {
       const joinedFamilyId = await joinFamily(joinCode.trim(), user.uid);
       setCreatedFamilyId(joinedFamilyId);
+      setIsCreator(false);
       await refreshProfile();
-      setStep("register");
+      // Show existing members for linking, or register if none
+      setStep("link-member");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       setError(msg || "가입에 실패했습니다. 초대코드를 확인해주세요.");
@@ -149,9 +160,34 @@ export default function SetupPage() {
       }
 
       await refreshProfile();
-      setStep("tree-builder");
+      setStep(isCreator ? "tree-builder" : "done");
     } catch {
       setError("구성원 등록에 실패했습니다.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLinkExistingMember = async (memberId: string) => {
+    if (!user) return;
+    setError("");
+    setSubmitting(true);
+    try {
+      // Link the existing member to this user
+      await updateDoc(doc(getFirebaseDb(), "users", user.uid), {
+        memberId,
+      });
+      // Also link the member doc to this user
+      const familyId = createdFamilyId || userProfile?.familyId;
+      if (familyId) {
+        await updateDoc(doc(getFirebaseDb(), "families", familyId, "members", memberId), {
+          linkedUserId: user.uid,
+        });
+      }
+      await refreshProfile();
+      setStep("done");
+    } catch {
+      setError("연결에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setSubmitting(false);
     }
@@ -172,12 +208,17 @@ export default function SetupPage() {
       <div className={`w-full ${step === "tree-builder" ? "max-w-xl" : "max-w-md"}`}>
         {/* Progress Indicator */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          {["choose", "create/join", "register", "tree-builder", "done"].map((s, i) => {
-            const stepNames = ["choose", "create", "register", "tree-builder", "done"];
-            const currentIndex = stepNames.indexOf(step === "join" ? "create" : step);
+          {(isCreator
+            ? ["선택", "가족생성", "본인등록", "가계도", "완료"]
+            : ["선택", "초대코드", "본인찾기", "완료"]
+          ).map((label, i, arr) => {
+            const creatorSteps: Step[] = ["choose", "create", "register", "tree-builder", "done"];
+            const joinerSteps: Step[] = ["choose", "join", "link-member", "done"];
+            const steps = isCreator ? creatorSteps : joinerSteps;
+            const currentIndex = steps.indexOf(step === "register" && !isCreator ? "link-member" : step);
             const isActive = i <= currentIndex;
             return (
-              <div key={s} className="flex items-center gap-2">
+              <div key={label} className="flex items-center gap-2">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
                     isActive
@@ -187,7 +228,7 @@ export default function SetupPage() {
                 >
                   {i < currentIndex ? <Check className="w-4 h-4" /> : i + 1}
                 </div>
-                {i < 4 && (
+                {i < arr.length - 1 && (
                   <div className={`w-8 h-0.5 ${isActive ? "bg-primary" : "bg-warm-subtle"}`} />
                 )}
               </div>
@@ -326,6 +367,59 @@ export default function SetupPage() {
                   {submitting ? "가입 중..." : "가입하기"}
                 </Button>
               </div>
+            </div>
+          )}
+
+          {/* Step: Link to existing member (for joining members) */}
+          {step === "link-member" && (
+            <div className="space-y-5">
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-foreground mb-1">본인 찾기</h2>
+                <p className="text-sm text-muted">
+                  관리자가 이미 등록한 구성원 중 본인을 선택하세요.
+                </p>
+              </div>
+
+              {members.length > 0 ? (
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {members
+                    .filter((m) => !m.linkedUserId)
+                    .map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => handleLinkExistingMember(m.id)}
+                      disabled={submitting}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all text-left"
+                    >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
+                        m.gender === "MALE" ? "bg-accent-blue/15 text-accent-blue" : "bg-accent-red/15 text-accent-red"
+                      }`}>
+                        {m.nameKorean.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-sm">{m.nameKorean}</p>
+                        <p className="text-xs text-muted">
+                          {m.generation + 1}세대
+                          {m.birthDate ? ` · ${new Date(m.birthDate.seconds * 1000).getFullYear()}년생` : ""}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-sm text-muted py-4">
+                  아직 등록된 구성원이 없습니다.
+                </p>
+              )}
+
+              {error && <p className="text-sm text-accent-red text-center">{error}</p>}
+
+              <button
+                onClick={() => setStep("register")}
+                className="w-full text-center text-sm text-primary hover:text-primary/80 transition-colors py-2 font-medium"
+              >
+                목록에 없어요 — 새로 등록하기
+              </button>
             </div>
           )}
 

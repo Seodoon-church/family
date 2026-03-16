@@ -1,13 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { BookOpen, Feather, PenLine, Camera, Users } from "lucide-react";
+import { BookOpen, Feather, PenLine, MessageCircle, Users } from "lucide-react";
 
 const mobileChapters = [
   { href: "/dashboard", label: "홈", icon: BookOpen, isFab: false },
   { href: "/stories", label: "이야기", icon: Feather, isFab: false },
   { href: "/stories/new", label: "", icon: PenLine, isFab: true },
-  { href: "/gallery", label: "사진첩", icon: Camera, isFab: false },
+  { href: "/chat", label: "대화", icon: MessageCircle, isFab: false },
   { href: "/members", label: "인물", icon: Users, isFab: false },
 ];
 

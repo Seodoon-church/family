@@ -121,33 +121,38 @@ export function StoryEditor({ onSubmit }: StoryEditorProps) {
         required
       />
 
-      {/* Category & Date Row */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex flex-wrap gap-1.5">
-          {Object.entries(STORY_CATEGORIES).map(([key, cat]) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setCategory(key as StoryCategory)}
-              className={`text-xs px-3 py-1.5 rounded-full transition-all duration-150 ${
-                category === key
-                  ? "bg-primary text-white shadow-sm"
-                  : "bg-warm-hover text-foreground/70 hover:bg-warm-hover"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 ml-auto">
-          <label className="text-xs text-muted">이야기 시점</label>
-          <input
-            type="date"
-            value={storyDate}
-            onChange={(e) => setStoryDate(e.target.value)}
-            className="text-xs px-2.5 py-1.5 rounded-lg border border-border text-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-          />
-        </div>
+      {/* 날짜 — 과거 기록 지원 */}
+      <div className="flex items-center gap-3 px-1">
+        <label className="text-sm text-foreground/70 shrink-0" style={{ fontFamily: "var(--font-story)" }}>
+          언제 있었던 일인가요?
+        </label>
+        <input
+          type="date"
+          value={storyDate}
+          onChange={(e) => setStoryDate(e.target.value)}
+          className="text-sm px-3 py-2 rounded-lg border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-transparent"
+        />
+        {!storyDate && (
+          <span className="text-xs text-muted">(비워두면 오늘 날짜)</span>
+        )}
+      </div>
+
+      {/* Category */}
+      <div className="flex flex-wrap gap-1.5">
+        {Object.entries(STORY_CATEGORIES).map(([key, cat]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setCategory(key as StoryCategory)}
+            className={`text-xs px-3 py-1.5 rounded-full transition-all duration-150 ${
+              category === key
+                ? "bg-primary text-white shadow-sm"
+                : "bg-warm-hover text-foreground/70 hover:bg-warm-hover"
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
       </div>
 
       {/* Divider */}

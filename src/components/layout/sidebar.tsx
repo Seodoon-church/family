@@ -10,6 +10,7 @@ import {
   BookOpen,
   Image,
   Clock,
+  MessageCircle,
   Settings,
   X,
   PenSquare,
@@ -26,6 +27,7 @@ const navGroups = [
     items: [
       { href: "/tree", label: "가계도", icon: GitBranchPlus },
       { href: "/members", label: "구성원 관리", icon: Users },
+      { href: "/chat", label: "가족 대화방", icon: MessageCircle },
     ],
   },
   {

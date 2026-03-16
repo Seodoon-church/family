@@ -293,7 +293,6 @@ body {
   width: 48px;
   background: linear-gradient(to right, var(--primary-dark), var(--primary));
   box-shadow: inset -4px 0 8px rgba(0, 0, 0, 0.15);
-  display: flex;
   flex-direction: column;
   align-items: center;
   padding: 1rem 0;
@@ -315,23 +314,24 @@ body {
   top: 50%;
   transform: translateY(-50%);
   z-index: 30;
-  display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .bookmark-item {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  padding: 14px 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
   border-radius: 8px 0 0 8px;
   font-size: 11px;
   font-weight: 500;
   font-family: var(--font-body);
   cursor: pointer;
-  transition: all 0.2s ease;
-  width: 32px;
-  text-align: center;
+  transition: all 0.25s ease;
+  width: 40px;
+  overflow: hidden;
+  white-space: nowrap;
   text-decoration: none;
   color: var(--muted);
   background: var(--card);
@@ -339,18 +339,31 @@ body {
   border-right: none;
 }
 
+.bookmark-item span {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
 .bookmark-item:hover {
-  width: 40px;
+  width: 100px;
   color: var(--foreground);
   background: var(--warm-hover);
 }
 
+.bookmark-item:hover span {
+  opacity: 1;
+}
+
 .bookmark-item.active {
-  width: 44px;
+  width: 110px;
   font-weight: 600;
   color: var(--card);
   box-shadow: -2px 0 8px rgba(44, 24, 16, 0.1);
   border-color: transparent;
+}
+
+.bookmark-item.active span {
+  opacity: 1;
 }
 
 /* Page number footer */
@@ -421,6 +434,62 @@ body {
   flex-shrink: 0;
 }
 
+/* ===== Book Reader (page flip) ===== */
+.book-reader-page {
+  background: linear-gradient(135deg, #FFFCF8 0%, #FAF7F2 50%, #F5EDE3 100%);
+  box-shadow: inset 0 0 30px rgba(44, 24, 16, 0.04);
+  overflow: hidden;
+  position: relative;
+}
+
+.book-reader-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 28px,
+      rgba(44, 24, 16, 0.015) 28px,
+      rgba(44, 24, 16, 0.015) 29px
+    );
+  pointer-events: none;
+}
+
+/* 표지 */
+.book-reader-page.cover-page {
+  background: linear-gradient(145deg, #FAF0E6 0%, #F5E6D3 40%, #EDD8C4 100%);
+  box-shadow: inset 0 0 40px rgba(160, 96, 75, 0.08);
+}
+
+.book-reader-page.cover-page::before {
+  display: none;
+}
+
+/* 뒷표지 */
+.book-reader-page.back-cover-page {
+  background: linear-gradient(145deg, #FAF0E6 0%, #F5E6D3 40%, #EDD8C4 100%);
+}
+
+.book-reader-page.back-cover-page::before {
+  display: none;
+}
+
+/* 목차 */
+.book-reader-page.toc-page::before {
+  display: none;
+}
+
+/* 플립북 그림자 보정 */
+.book-reader-flipbook {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
 /* Page transition */
 .page-enter {
   animation: pageIn 0.3s ease;
@@ -434,5 +503,21 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Notification toast slide-in */
+.animate-slide-in {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

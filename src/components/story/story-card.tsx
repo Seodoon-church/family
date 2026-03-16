@@ -12,16 +12,19 @@ interface StoryCardProps {
 export function StoryCard({ story }: StoryCardProps) {
   const category = STORY_CATEGORIES[story.category as keyof typeof STORY_CATEGORIES];
 
-  // Format date as month/day stacked
-  const createdDate = story.createdAt?.toDate ? story.createdAt.toDate() : null;
-  const month = createdDate ? `${createdDate.getMonth() + 1}월` : "";
-  const day = createdDate ? `${createdDate.getDate()}` : "";
+  // storyDate 우선 표시, 없으면 createdAt
+  const displayDate = (story.storyDate?.toDate ? story.storyDate.toDate() : null)
+    || (story.createdAt?.toDate ? story.createdAt.toDate() : null);
+  const month = displayDate ? `${displayDate.getMonth() + 1}월` : "";
+  const day = displayDate ? `${displayDate.getDate()}` : "";
+  const year = displayDate ? `${displayDate.getFullYear()}` : "";
 
   return (
     <a href={`/stories/${story.id}`} className="block">
       <article className="flex items-start gap-4 py-4 px-3 journal-border hover:bg-primary-light/20 transition-all duration-200 cursor-pointer group rounded-lg">
         {/* Left: Date margin */}
         <div className="shrink-0 w-12 text-center pt-0.5">
+          <p className="text-[10px] text-foreground/40 leading-tight">{year}</p>
           <p className="date-stamp text-[11px] leading-tight">{month}</p>
           <p className="text-lg font-semibold text-foreground/60 leading-tight">{day}</p>
         </div>
@@ -53,9 +56,11 @@ export function StoryCard({ story }: StoryCardProps) {
             <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-light text-primary border border-primary/10 font-medium">
               {category?.label || story.category}
             </span>
-            {createdDate && (
+            {displayDate && (
               <span className="text-xs text-muted ml-auto">
-                {getRelativeTime(createdDate)}
+                {year !== `${new Date().getFullYear()}`
+                  ? `${year}.${displayDate.getMonth() + 1}.${displayDate.getDate()}`
+                  : getRelativeTime(displayDate)}
               </span>
             )}
           </div>
