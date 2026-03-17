@@ -11,7 +11,7 @@ import { MemberForm } from "@/components/member/member-form";
 import { Avatar } from "@/components/ui/avatar";
 import { ChapterHeader } from "@/components/book/chapter-header";
 import { OrnamentDivider } from "@/components/book/ornament-divider";
-import { Shield, Copy, Check, RefreshCw, UserPlus } from "lucide-react";
+import { Shield, Copy, Check, RefreshCw, UserPlus, HardDrive, ChevronRight } from "lucide-react";
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
 import type { FamilyMember } from "@/types/family";
@@ -68,7 +68,7 @@ export default function SettingsPage() {
       setClanSaving(false);
     }
   };
-  const isAdmin = userProfile?.role === "ADMIN";
+  const isAdmin = userProfile?.role === "OWNER" || userProfile?.role === "ADMIN";
 
   const handleCopyCode = () => {
     if (family?.inviteCode) {
@@ -355,6 +355,37 @@ export default function SettingsPage() {
                 </div>
               ))}
             </div>
+          </section>
+        </>
+      )}
+
+      {/* Section: 데이터 관리 (Admin only) */}
+      {isAdmin && (
+        <>
+          <OrnamentDivider symbol="~" />
+
+          <section className="mb-2">
+            <h2
+              className="text-lg text-foreground mb-4"
+              style={{ fontFamily: "var(--font-story)" }}
+            >
+              데이터 관리
+            </h2>
+            <a
+              href="/settings/backup"
+              className="flex items-center justify-between p-4 rounded-xl bg-warm-hover hover:bg-primary/5 border border-border transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <HardDrive className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground text-sm">백업 및 복원</p>
+                  <p className="text-xs text-muted">가족 데이터를 안전하게 백업하거나 복원합니다</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted group-hover:text-primary transition-colors" />
+            </a>
           </section>
         </>
       )}

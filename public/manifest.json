@@ -1,0 +1,30 @@
+{
+  "name": "우리家 이야기",
+  "short_name": "우리家",
+  "description": "가족의 이야기를 한 권의 책으로 엮어가는 디지털 족보 플랫폼",
+  "start_url": "/dashboard/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#C75B2A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

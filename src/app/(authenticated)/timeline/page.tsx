@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useEvents } from "@/hooks/use-events";
+import { useEvents, FamilyEvent } from "@/hooks/use-events";
 import { EventTimeline } from "@/components/timeline/event-timeline";
 import { EventForm } from "@/components/timeline/event-form";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,27 @@ import { Plus } from "lucide-react";
 
 export default function TimelinePage() {
   const { userProfile } = useAuth();
-  const { events, loading, addEvent } = useEvents(userProfile?.familyId);
+  const { events, loading, addEvent, updateEvent, removeEvent } = useEvents(userProfile?.familyId);
   const [showForm, setShowForm] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<FamilyEvent | null>(null);
 
   const handleAdd = async (data: Parameters<typeof addEvent>[0]) => {
     await addEvent(data);
     setShowForm(false);
+  };
+
+  const handleEdit = (event: FamilyEvent) => {
+    setEditingEvent(event);
+  };
+
+  const handleUpdate = async (data: Parameters<typeof addEvent>[0]) => {
+    if (!editingEvent) return;
+    await updateEvent(editingEvent.id, data);
+    setEditingEvent(null);
+  };
+
+  const handleDelete = async (eventId: string) => {
+    await removeEvent(eventId);
   };
 
   if (loading) {
@@ -43,7 +58,7 @@ export default function TimelinePage() {
         </Button>
       </div>
 
-      <EventTimeline events={events} />
+      <EventTimeline events={events} onEdit={handleEdit} onDelete={handleDelete} />
 
       <OrnamentDivider className="mt-10 mb-4" />
 
@@ -58,6 +73,14 @@ export default function TimelinePage() {
         <EventForm
           onSubmit={handleAdd}
           onCancel={() => setShowForm(false)}
+        />
+      )}
+
+      {editingEvent && (
+        <EventForm
+          onSubmit={handleUpdate}
+          onCancel={() => setEditingEvent(null)}
+          initialData={editingEvent}
         />
       )}
     </div>

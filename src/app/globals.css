@@ -4,22 +4,22 @@
 
 :root {
   --background: #FAF7F2;
-  --foreground: #2C1810;
-  --primary: #A0604B;
-  --primary-light: #FBF5F0;
-  --primary-dark: #73392D;
-  --accent-red: #C94040;
-  --accent-blue: #4A7A9B;
-  --accent-green: #5E8A5E;
-  --accent-gold: #C8920A;
+  --foreground: #1A1A2E;
+  --primary: #C75B2A;
+  --primary-light: #FFF5EB;
+  --primary-dark: #A14820;
+  --accent-red: #E74C3C;
+  --accent-blue: #2E86AB;
+  --accent-green: #27AE60;
+  --accent-gold: #D4A017;
   --accent-cream: #FAF7F2;
-  --border: #E8DFD4;
-  --muted: #8C7B6B;
+  --border: #D9CFC3;
+  --muted: #6B7280;
   --card: #FFFCF8;
-  --card-foreground: #2C1810;
+  --card-foreground: #1A1A2E;
   --warm-hover: #F5EDE3;
   --warm-subtle: #D4C8BA;
-  --warm-muted-light: #A89888;
+  --warm-muted-light: #8B7E74;
 }
 
 @theme inline {
@@ -43,6 +43,27 @@
   --font-heading: "Pretendard Variable", "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-body: "Pretendard Variable", "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-story: "Noto Serif KR", "Batang", Georgia, "Times New Roman", serif;
+}
+
+/* Dark mode */
+.dark {
+  --background: #1A1A2E;
+  --foreground: #E8E2D9;
+  --primary: #E07B4A;
+  --primary-light: #2A2035;
+  --primary-dark: #F0956A;
+  --accent-red: #EF6B5B;
+  --accent-blue: #4BA3C7;
+  --accent-green: #3CC97A;
+  --accent-gold: #E8B84A;
+  --accent-cream: #1A1A2E;
+  --border: #3A3548;
+  --muted: #9CA3AF;
+  --card: #242038;
+  --card-foreground: #E8E2D9;
+  --warm-hover: #2E2944;
+  --warm-subtle: #4A4458;
+  --warm-muted-light: #A89E94;
 }
 
 html {
@@ -96,6 +117,11 @@ body {
     linear-gradient(rgba(200, 180, 150, 0.04) 50%, transparent 50%);
   background-size: 4px 4px;
 }
+
+.dark .paper-texture { background-image: none; }
+.dark .linen-texture { background-image: none; }
+.dark .social-login-btn { background-color: var(--card) !important; border-color: var(--border) !important; }
+.dark .social-login-btn span { color: var(--foreground) !important; }
 
 /* Warm shadows */
 .warm-shadow {
@@ -357,8 +383,9 @@ body {
 .bookmark-item.active {
   width: 110px;
   font-weight: 600;
-  color: var(--card);
-  box-shadow: -2px 0 8px rgba(44, 24, 16, 0.1);
+  color: white;
+  background-color: var(--primary);
+  box-shadow: -2px 0 8px rgba(44, 24, 16, 0.15);
   border-color: transparent;
 }
 
@@ -662,4 +689,143 @@ body {
 .tiptap-editor img.editor-image.ProseMirror-selectednode {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* ===== Landing Page ===== */
+
+@keyframes landingFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landingScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.landing-fade-up {
+  animation: landingFadeUp 0.8s ease-out both;
+}
+
+.landing-fade-up-delay-1 {
+  animation: landingFadeUp 0.8s ease-out 0.15s both;
+}
+
+.landing-fade-up-delay-2 {
+  animation: landingFadeUp 0.8s ease-out 0.3s both;
+}
+
+.landing-fade-up-delay-3 {
+  animation: landingFadeUp 0.8s ease-out 0.45s both;
+}
+
+.landing-scale-in {
+  animation: landingScaleIn 0.6s ease-out both;
+}
+
+/* Hero book cover */
+.landing-book-cover {
+  background: linear-gradient(145deg, #FFF8F0 0%, #F5E0CC 40%, #EACDB5 100%);
+  box-shadow:
+    0 8px 32px rgba(26, 26, 46, 0.15),
+    0 2px 8px rgba(26, 26, 46, 0.08),
+    inset 0 0 60px rgba(199, 91, 42, 0.06);
+}
+
+/* Landing navbar */
+.landing-navbar {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-navbar.scrolled {
+  background-color: rgba(255, 252, 248, 0.95);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(26, 26, 46, 0.08);
+}
+
+/* FAQ accordion */
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.faq-answer.open {
+  max-height: 200px;
+  padding-top: 0.75rem;
+}
+
+/* Social login button */
+.social-login-btn {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.social-login-btn:hover {
+  box-shadow: 0 2px 8px rgba(26, 26, 46, 0.12);
+}
+
+/* Feature card hover lift */
+.landing-feature-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(44, 24, 16, 0.1), 0 4px 8px rgba(44, 24, 16, 0.05);
+}
+
+/* Step connector */
+.step-connector {
+  border-top: 2px dashed var(--border);
+}
+
+.step-connector-vertical {
+  border-left: 2px dashed var(--border);
+  height: 32px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 0;
+}
+
+/* Quote decorative marks */
+.landing-quote {
+  position: relative;
+}
+
+.landing-quote::before {
+  content: '\201C';
+  font-size: 5rem;
+  line-height: 1;
+  color: var(--accent-gold);
+  opacity: 0.2;
+  font-family: var(--font-story);
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* Scroll-triggered visibility */
+.landing-scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.landing-scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }

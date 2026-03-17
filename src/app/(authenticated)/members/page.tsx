@@ -103,7 +103,7 @@ export default function MembersPage() {
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
   const [deletingMember, setDeletingMember] = useState<FamilyMember | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const isAdmin = userProfile?.role === "ADMIN";
+  const isAdmin = userProfile?.role === "OWNER" || userProfile?.role === "ADMIN";
 
   const handleAdd = async (data: Partial<FamilyMember>, relation?: { memberId: string; type: "SPOUSE" | "PARENT_CHILD" }) => {
     const docRef = await addMember(data as Omit<FamilyMember, "id" | "createdAt" | "updatedAt">);

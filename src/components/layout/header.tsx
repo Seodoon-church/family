@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Avatar } from "@/components/ui/avatar";
 import { LogOut, Bell, Search, ChevronDown } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const headerTabs = [
@@ -78,6 +79,9 @@ export function Header({ onMenuClick }: HeaderProps) {
               <kbd className="hidden lg:inline text-[10px] px-1.5 py-0.5 rounded bg-warm-hover text-muted font-mono">⌘K</kbd>
             </button>
 
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Notifications */}
             <button className="p-2 rounded-lg hover:bg-warm-hover transition-colors relative">
               <Bell className="w-4 h-4 text-muted" />
@@ -97,7 +101,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 <div className="hidden sm:block text-right">
                   <p className="text-sm font-medium text-foreground leading-tight">{userProfile.displayName}</p>
                   <p className="text-[10px] text-muted leading-tight">
-                    {userProfile.role === "ADMIN" ? "관리자" : "구성원"}
+                    {userProfile.role === "OWNER" ? "소유자" : userProfile.role === "ADMIN" ? "관리자" : "구성원"}
                   </p>
                 </div>
                 <button

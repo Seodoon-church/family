@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EVENT_CATEGORIES } from "@/lib/constants";
 import { X } from "lucide-react";
 import { Timestamp } from "firebase/firestore";
+import type { FamilyEvent } from "@/hooks/use-events";
 
 interface EventFormProps {
   onSubmit: (data: {
@@ -18,9 +19,10 @@ interface EventFormProps {
     participants: { id: string; name: string }[];
   }) => Promise<void>;
   onCancel: () => void;
+  initialData?: FamilyEvent;
 }
 
-export function EventForm({ onSubmit, onCancel }: EventFormProps) {
+export function EventForm({ onSubmit, onCancel, initialData }: EventFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
@@ -28,6 +30,22 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
   const [isRecurring, setIsRecurring] = useState(false);
   const [location, setLocation] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const isEditMode = !!initialData;
+
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setDescription(initialData.description || "");
+      setCategory(initialData.category);
+      setIsRecurring(initialData.isRecurring);
+      setLocation(initialData.location || "");
+      if (initialData.eventDate?.toDate) {
+        const d = initialData.eventDate.toDate();
+        setEventDate(d.toISOString().split("T")[0]);
+      }
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +60,7 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
         category,
         isRecurring,
         location: location || undefined,
-        participants: [],
+        participants: initialData?.participants || [],
       });
     } finally {
       setSubmitting(false);
@@ -53,7 +71,7 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-5 border-b border-border">
-          <h2 className="font-semibold text-lg">이벤트 추가</h2>
+          <h2 className="font-semibold text-lg">{isEditMode ? "이벤트 수정" : "이벤트 추가"}</h2>
           <button onClick={onCancel} className="p-1 rounded-lg hover:bg-primary/10">
             <X className="w-5 h-5" />
           </button>
@@ -124,7 +142,7 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
               취소
             </Button>
             <Button type="submit" disabled={submitting} className="flex-1">
-              {submitting ? "추가 중..." : "추가"}
+              {submitting ? (isEditMode ? "수정 중..." : "추가 중...") : (isEditMode ? "수정" : "추가")}
             </Button>
           </div>
         </form>

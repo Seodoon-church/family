@@ -58,6 +58,6 @@ export interface UserProfile {
   profileImage?: string;
   familyId?: string;
   memberId?: string;
-  role: "ADMIN" | "MEMBER" | "VIEWER";
+  role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
   createdAt: Timestamp;
 }

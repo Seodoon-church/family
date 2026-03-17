@@ -12,7 +12,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-function getApp(): FirebaseApp {
+export function getFirebaseApp(): FirebaseApp {
   return getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 }
 
@@ -21,17 +21,17 @@ let _db: Firestore | undefined;
 let _storage: FirebaseStorage | undefined;
 
 export function getFirebaseAuth(): Auth {
-  if (!_auth) _auth = getAuth(getApp());
+  if (!_auth) _auth = getAuth(getFirebaseApp());
   return _auth;
 }
 
 export function getFirebaseDb(): Firestore {
-  if (!_db) _db = getFirestore(getApp());
+  if (!_db) _db = getFirestore(getFirebaseApp());
   return _db;
 }
 
 export function getFirebaseStorage(): FirebaseStorage {
-  if (!_storage) _storage = getStorage(getApp());
+  if (!_storage) _storage = getStorage(getFirebaseApp());
   return _storage;
 }
 

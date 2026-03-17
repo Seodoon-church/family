@@ -32,9 +32,10 @@ export function MediaGrid({ mediaList, onDelete }: MediaGridProps) {
           >
             {media.type === "PHOTO" ? (
               <img
-                src={media.downloadUrl}
+                src={media.thumbnailUrl || media.downloadUrl}
                 alt={media.title || media.fileName}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             ) : media.type === "VIDEO" ? (
               <div className="w-full h-full flex items-center justify-center bg-accent-blue/10">

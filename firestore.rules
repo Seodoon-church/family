@@ -17,10 +17,16 @@ service cloud.firestore {
       return isAuth() &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.familyId == familyId;
     }
-    // 해당 가족의 ADMIN 여부
-    function isFamilyAdmin(familyId) {
+    // 해당 가족의 OWNER 여부
+    function isFamilyOwner(familyId) {
       return isFamilyMember(familyId) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'OWNER';
+    }
+    // 해당 가족의 ADMIN 이상 여부 (OWNER 또는 ADMIN)
+    function isFamilyAdmin(familyId) {
+      let role = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      return isFamilyMember(familyId) &&
+        (role == 'OWNER' || role == 'ADMIN');
     }
 
     // ─── User Profiles ───
@@ -101,6 +107,13 @@ service cloud.firestore {
         allow create: if isFamilyMember(familyId);
         allow update: if isFamilyMember(familyId);
         allow delete: if isFamilyMember(familyId);
+      }
+
+      // ─── Backup History (백업 기록) ───
+      match /backupHistory/{backupId} {
+        allow read: if isFamilyAdmin(familyId);
+        // 쓰기는 Cloud Function에서만 (admin SDK)
+        allow write: if false;
       }
     }
 

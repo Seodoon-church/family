@@ -63,10 +63,10 @@ export function useFamily(familyId: string | undefined) {
       createdAt: serverTimestamp(),
     });
 
-    // Update user profile with familyId and ADMIN role
+    // Update user profile with familyId and OWNER role (creator)
     await updateDoc(doc(db, "users", userId), {
       familyId: familyRef.id,
-      role: "ADMIN",
+      role: "OWNER",
     });
 
     return familyRef.id;

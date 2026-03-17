@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ChapterHeader } from "@/components/book/chapter-header";
 import { OrnamentDivider } from "@/components/book/ornament-divider";
-import { Upload, Image, Video, Mic, Play, X, Camera, ChevronLeft, ChevronRight } from "lucide-react";
+import { Upload, Image, Video, Mic, Play, X, Camera, ChevronLeft, ChevronRight, ArrowUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MediaType, Media } from "@/types/media";
 
@@ -18,11 +18,17 @@ export default function GalleryPage() {
   const { mediaList, loading, uploadProgress, uploadMedia, deleteMedia } = useMedia(familyId);
   const [showUpload, setShowUpload] = useState(false);
   const [filter, setFilter] = useState<MediaType | "ALL">("ALL");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const filteredMedia = filter === "ALL"
+  const filteredMedia = (filter === "ALL"
     ? mediaList
-    : mediaList.filter((m) => m.type === filter);
+    : mediaList.filter((m) => m.type === filter)
+  ).sort((a, b) => {
+    const timeA = a.createdAt?.toDate?.()?.getTime() || 0;
+    const timeB = b.createdAt?.toDate?.()?.getTime() || 0;
+    return sortOrder === "newest" ? timeB - timeA : timeA - timeB;
+  });
 
   const selectedMedia = selectedIndex !== null ? filteredMedia[selectedIndex] : null;
 
@@ -78,8 +84,8 @@ export default function GalleryPage() {
         </Button>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex justify-center gap-1 border-b border-border pb-0 mb-8">
+      {/* Filter tabs + sort */}
+      <div className="flex justify-center items-end gap-1 border-b border-border pb-0 mb-8">
         {[
           { value: "ALL" as const, label: "전체", icon: null },
           { value: "PHOTO" as const, label: "사진", icon: Image },
@@ -104,6 +110,14 @@ export default function GalleryPage() {
             )}
           </button>
         ))}
+        <button
+          onClick={() => setSortOrder(sortOrder === "newest" ? "oldest" : "newest")}
+          className="flex items-center gap-1 text-xs px-3 py-2 text-muted hover:text-foreground transition-colors ml-2"
+          title={sortOrder === "newest" ? "오래된순" : "최신순"}
+        >
+          <ArrowUpDown className="w-3.5 h-3.5" />
+          {sortOrder === "newest" ? "최신순" : "오래된순"}
+        </button>
       </div>
 
       {/* Scrapbook grid */}
@@ -138,9 +152,10 @@ export default function GalleryPage() {
             >
               {media.type === "PHOTO" ? (
                 <img
-                  src={media.downloadUrl}
+                  src={media.thumbnailUrl || media.downloadUrl}
                   alt={media.title || media.fileName}
                   className="w-full rounded-sm"
+                  loading="lazy"
                 />
               ) : media.type === "VIDEO" ? (
                 <div className="w-full aspect-video flex items-center justify-center bg-accent-blue/10 rounded-sm">
@@ -234,7 +249,7 @@ export default function GalleryPage() {
                 <p className="text-sm font-medium text-white">{selectedMedia.title || selectedMedia.fileName}</p>
                 {selectedMedia.description && <p className="text-xs mt-1">{selectedMedia.description}</p>}
               </div>
-              {userProfile?.role === "ADMIN" && (
+              {(userProfile?.role === "OWNER" || userProfile?.role === "ADMIN") && (
                 <button
                   onClick={() => { deleteMedia(selectedMedia); setSelectedIndex(null); }}
                   className="text-xs text-accent-red hover:text-red-400"

@@ -7,6 +7,9 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
   serverTimestamp,
 } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
@@ -63,5 +66,15 @@ export function useEvents(familyId: string | undefined) {
     });
   };
 
-  return { events, loading, addEvent };
+  const updateEvent = async (eventId: string, data: Partial<Omit<FamilyEvent, "id" | "createdAt">>) => {
+    if (!familyId) return;
+    await updateDoc(doc(getFirebaseDb(), "families", familyId, "events", eventId), data);
+  };
+
+  const removeEvent = async (eventId: string) => {
+    if (!familyId) return;
+    await deleteDoc(doc(getFirebaseDb(), "families", familyId, "events", eventId));
+  };
+
+  return { events, loading, addEvent, updateEvent, removeEvent };
 }

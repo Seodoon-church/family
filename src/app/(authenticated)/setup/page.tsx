@@ -52,7 +52,7 @@ export default function SetupPage() {
       if (userProfile.memberId) {
         // Already linked to a member — go to done
         setStep("done");
-      } else if (userProfile.role === "ADMIN") {
+      } else if (userProfile.role === "OWNER" || userProfile.role === "ADMIN") {
         // Creator without member → register
         setIsCreator(true);
         setStep("register");

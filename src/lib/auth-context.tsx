@@ -4,13 +4,32 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithCustomToken,
   signOut as firebaseSignOut,
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+  sendEmailVerification,
   User,
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { getFirebaseAuth, getFirebaseDb } from "./firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { getFirebaseAuth, getFirebaseDb, getFirebaseApp } from "./firebase";
 import type { UserProfile } from "@/types/family";
+
+// 카카오 SDK 타입
+declare global {
+  interface Window {
+    Kakao?: {
+      init: (key: string) => void;
+      isInitialized: () => boolean;
+      Auth: {
+        login: (options: { success: (response: { access_token: string }) => void; fail: (error: unknown) => void }) => void;
+      };
+    };
+  }
+}
 
 interface AuthContextType {
   user: User | null;
@@ -18,6 +37,10 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithKakao: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  resendVerification: () => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -87,6 +110,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: "MEMBER",
       createdAt: serverTimestamp(),
     });
+    // 이메일 인증 발송
+    await sendEmailVerification(credential.user);
+  };
+
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(getFirebaseAuth(), provider);
+    // 신규 사용자면 users 컬렉션에 프로필 생성
+    const userDoc = await getDoc(doc(getFirebaseDb(), "users", result.user.uid));
+    if (!userDoc.exists()) {
+      await setDoc(doc(getFirebaseDb(), "users", result.user.uid), {
+        email: result.user.email,
+        displayName: result.user.displayName,
+        role: "MEMBER",
+        createdAt: serverTimestamp(),
+      });
+    }
+  };
+
+  const signInWithKakao = async () => {
+    // 1. 카카오 SDK 로드 확인
+    if (!window.Kakao) {
+      throw new Error("카카오 SDK가 로드되지 않았습니다.");
+    }
+    if (!window.Kakao.isInitialized()) {
+      window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY!);
+    }
+
+    // 2. 카카오 로그인 → access_token 획득
+    const accessToken = await new Promise<string>((resolve, reject) => {
+      window.Kakao!.Auth.login({
+        success: (res) => resolve(res.access_token),
+        fail: (err) => reject(err),
+      });
+    });
+
+    // 3. Cloud Function 호출 → Firebase 커스텀 토큰
+    const functions = getFunctions(getFirebaseApp(), "us-central1");
+    const kakaoLoginFn = httpsCallable<{ accessToken: string }, { customToken: string }>(functions, "kakaoLogin");
+    const result = await kakaoLoginFn({ accessToken });
+
+    // 4. Firebase 로그인
+    await signInWithCustomToken(getFirebaseAuth(), result.data.customToken);
+  };
+
+  const resetPassword = async (email: string) => {
+    await sendPasswordResetEmail(getFirebaseAuth(), email);
+  };
+
+  const resendVerification = async () => {
+    const currentUser = getFirebaseAuth().currentUser;
+    if (currentUser && !currentUser.emailVerified) {
+      await sendEmailVerification(currentUser);
+    }
   };
 
   const refreshProfile = async () => {
@@ -105,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, signIn, signUp, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, userProfile, loading, signIn, signUp, signInWithGoogle, signInWithKakao, resetPassword, resendVerification, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

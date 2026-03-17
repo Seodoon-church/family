@@ -31,7 +31,7 @@ export function MemberDetailClient() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const isAdmin = userProfile?.role === "ADMIN";
+  const isAdmin = userProfile?.role === "OWNER" || userProfile?.role === "ADMIN";
 
   // Static export에서 useParams가 '_'를 반환할 수 있으므로 URL에서 직접 추출
   const id = (() => {

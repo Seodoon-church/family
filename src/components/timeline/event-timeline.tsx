@@ -6,6 +6,7 @@ import type { FamilyEvent } from "@/hooks/use-events";
 import {
   Baby, Flower2, Heart, GraduationCap, Briefcase,
   Calendar, Home, Users, Plane, Star, RotateCcw,
+  Pencil, Trash2,
 } from "lucide-react";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -23,9 +24,11 @@ const iconMap: Record<string, React.ElementType> = {
 
 interface EventTimelineProps {
   events: FamilyEvent[];
+  onEdit?: (event: FamilyEvent) => void;
+  onDelete?: (eventId: string) => void;
 }
 
-export function EventTimeline({ events }: EventTimelineProps) {
+export function EventTimeline({ events, onEdit, onDelete }: EventTimelineProps) {
   if (events.length === 0) {
     return (
       <div className="text-center py-12">
@@ -115,9 +118,33 @@ export function EventTimeline({ events }: EventTimelineProps) {
                             </div>
                           )}
                         </div>
-                        {event.isRecurring && (
-                          <span title="매년 반복"><RotateCcw className="w-3 h-3 text-muted shrink-0" /></span>
-                        )}
+                        <div className="flex items-center gap-1 shrink-0">
+                          {event.isRecurring && (
+                            <span title="매년 반복"><RotateCcw className="w-3 h-3 text-muted" /></span>
+                          )}
+                          {onEdit && (
+                            <button
+                              onClick={() => onEdit(event)}
+                              className="p-1 rounded hover:bg-primary/10 text-muted hover:text-primary transition-colors"
+                              title="수정"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button
+                              onClick={() => {
+                                if (confirm("이 이벤트를 삭제하시겠습니까?")) {
+                                  onDelete(event.id);
+                                }
+                              }}
+                              className="p-1 rounded hover:bg-accent-red/10 text-muted hover:text-accent-red transition-colors"
+                              title="삭제"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
